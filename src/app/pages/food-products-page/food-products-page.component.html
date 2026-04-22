@@ -1,0 +1,202 @@
+<div class="container np-page">
+  <section class="np-hero mb-4">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-8">
+        <h1 class="np-section-title">Food products</h1>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="np-card bg-transparent">
+          <div class="small text-body-secondary mb-2">Products</div>
+          <div class="np-stat">{{ products().length }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="row g-4">
+    <div class="col-xl-7">
+      <section class="np-card">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+          <h2 class="h4 mb-0">Catalog</h2>
+          <button class="btn btn-dark np-primary-button" type="button" (click)="startCreateMode()">Add product</button>
+        </div>
+
+        <div class="row g-2 mb-4">
+          <div class="col-md-5">
+            <input
+              #searchInput
+              type="search"
+              class="form-control"
+              placeholder="Search by product name"
+              [value]="searchTerm()"
+              (input)="updateSearchTerm(searchInput.value)"
+              (keyup.enter)="loadProducts()"
+            />
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" [value]="categoryFilter()" (change)="updateCategoryFilter(categorySelect.value)" #categorySelect>
+              @for (categoryOption of categoryOptions(); track categoryOption) {
+                <option [value]="categoryOption.value">{{ categoryOption.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" [value]="sortMode()" (change)="updateSortMode(sortSelect.value)" #sortSelect>
+              <option value="alphabet-asc">A-Z</option>
+              <option value="alphabet-desc">Z-A</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-dark w-100" type="button" (click)="loadProducts()">Apply</button>
+          </div>
+        </div>
+
+        <div class="np-panel-shell np-panel-shell-xl">
+          @if (sortedProducts().length === 0 && !isLoading()) {
+            <div class="np-empty">No food products available for the selected filters.</div>
+          } @else {
+            <div class="d-flex flex-column gap-3">
+              @for (product of sortedProducts(); track product.id) {
+                <button
+                  class="np-product-row text-start"
+                  type="button"
+                  [class.active]="selectedProductId() === product.id"
+                  (click)="selectProduct(product.id)"
+                >
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                      <div class="fw-semibold">{{ product.name }}</div>
+                      <div class="small text-body-secondary">
+                        {{ product.category }} · {{ product.grams | number: '1.0-0' }} g ·
+                        {{ product.calories | number: '1.0-0' }} kcal · {{ product.protein | number: '1.0-1' }} P ·
+                        {{ product.fat | number: '1.0-1' }} F · {{ product.carbohydrates | number: '1.0-1' }} C
+                      </div>
+                    </div>
+                    <span class="np-chip">{{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' }}</span>
+                  </div>
+                </button>
+              }
+            </div>
+          }
+
+          @if (isLoading()) {
+            <div class="np-loading-overlay">
+              <div class="np-loading-card">
+                <div class="np-spinner"></div>
+                <span>Loading products...</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="col-xl-5">
+      <section class="np-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h4 mb-0">{{ editorMode() === 'create' ? 'Create food product' : 'Product details' }}</h2>
+          @if (editorMode() === 'edit') {
+            <button class="btn btn-outline-dark btn-sm" type="button" (click)="startCreateMode()">New product</button>
+          }
+        </div>
+
+        <div class="np-panel-shell np-panel-shell-lg">
+          <form class="row g-3" [formGroup]="form" (ngSubmit)="saveFoodProduct()">
+            @if (editorMode() === 'edit' && selectedProductId()) {
+              <div class="col-12">
+                <div class="np-inline-meta">
+                  <span class="small text-body-secondary">Product ID</span>
+                  <span class="fw-semibold">#{{ selectedProductId() }}</span>
+                </div>
+              </div>
+            }
+
+            <div class="col-12">
+              <label class="form-label" for="name">Name</label>
+              <input id="name" type="text" class="form-control" formControlName="name" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="category">Category</label>
+              <input id="category" type="text" class="form-control" formControlName="category" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="grams">Grams</label>
+              <input id="grams" type="number" min="0.0001" step="0.1" class="form-control" formControlName="grams" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="price">Price</label>
+              <input id="price" type="number" min="0" step="0.01" class="form-control" formControlName="price" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="carbohydrates">Carbohydrates</label>
+              <input
+                id="carbohydrates"
+                type="number"
+                min="0"
+                step="0.01"
+                class="form-control"
+                formControlName="carbohydrates"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="protein">Protein</label>
+              <input id="protein" type="number" min="0" step="0.01" class="form-control" formControlName="protein" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="fat">Fat</label>
+              <input id="fat" type="number" min="0" step="0.01" class="form-control" formControlName="fat" />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="calories">Calories</label>
+              <input id="calories" type="number" min="0" step="0.01" class="form-control" formControlName="calories" />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="photoUrl">Photo URL</label>
+              <input id="photoUrl" type="text" class="form-control" formControlName="photoUrl" />
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button class="btn btn-dark flex-fill np-primary-button" type="submit" [disabled]="isSubmitting()">
+                {{
+                  isSubmitting()
+                    ? (editorMode() === 'create' ? 'Creating...' : 'Saving...')
+                    : (editorMode() === 'create' ? 'Create product' : 'Save changes')
+                }}
+              </button>
+
+              @if (editorMode() === 'edit') {
+                <button class="btn btn-outline-danger" type="button" [disabled]="isSubmitting()" (click)="deleteFoodProduct()">
+                  Delete
+                </button>
+              }
+            </div>
+          </form>
+
+          @if (isDetailsLoading()) {
+            <div class="np-loading-overlay">
+              <div class="np-loading-card">
+                <div class="np-spinner"></div>
+                <span>Loading product details...</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
