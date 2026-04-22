@@ -1,0 +1,101 @@
+<div class="np-shell">
+  <header class="np-topbar">
+    <nav class="navbar">
+      <div class="container py-3 np-header-grid">
+        <div class="np-header-start">
+          <a class="np-brand" routerLink="/meal-plan">
+            <span>Nutrition Planner</span>
+          </a>
+        </div>
+
+        <div class="np-header-center">
+          <ul class="navbar-nav align-items-center mb-0 flex-row np-nav-list">
+            <li class="nav-item">
+              @if (user()?.roles?.includes(premiumRole)) {
+                <a
+                  class="nav-link np-nav-link"
+                  routerLink="/ai-assistant"
+                  routerLinkActive="active"
+                  [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+                >
+                  AI assistant
+                </a>
+              }
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link np-nav-link"
+                routerLink="/finances"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+              >
+                Finances
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link np-nav-link"
+                routerLink="/meal-plan"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+              >
+                Meal plan
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link np-nav-link"
+                routerLink="/food-products"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+              >
+                Food products
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link np-nav-link"
+                routerLink="/profile"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+              >
+                Profile
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="np-header-end">
+          <div class="d-flex align-items-center gap-1 np-user-actions">
+            @if (user(); as user) {
+              <div ngbDropdown class="np-user-dropdown" [title]="user.name">
+                <button class="np-user-trigger" type="button" ngbDropdownToggle>
+                  <span class="np-user-avatar">{{ user.name | initials }}</span>
+                  <span class="np-user-meta">
+                    <span class="np-user-name">{{ user.name }}</span>
+                    <span class="np-user-role">{{ user.roles[0] || 'User' }}</span>
+                  </span>
+                </button>
+
+                <div ngbDropdownMenu>
+                  <button type="button" class="dropdown-item" [class.disabled]="true" aria-disabled="true">
+                    {{ user.name }}
+                  </button>
+                  <button type="button" class="dropdown-item" [class.disabled]="true" aria-disabled="true">
+                    {{ user.email || user.username }}
+                  </button>
+                  <button type="button" class="dropdown-item" (click)="logout()">Logout</button>
+                </div>
+              </div>
+            } @else {
+              <button class="btn btn-outline-dark np-auth-button" type="button">Register</button>
+              <button class="btn btn-dark np-auth-button" type="button" (click)="login()">Login</button>
+            }
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,420 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'variables';
+@import 'bootstrap/scss/bootstrap';
+
+:root {
+    --np-ink: #183028;
+    --np-leaf: #355f4b;
+    --np-mint: #e7f1e7;
+    --np-accent: #c86b3c;
+    --np-border: rgba(24, 48, 40, 0.12);
+    --np-surface: rgba(255, 255, 255, 0.9);
+    --np-surface-strong: rgba(255, 255, 255, 0.96);
+    --np-muted: rgba(24, 48, 40, 0.62);
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    color: var(--np-ink);
+    background:
+        radial-gradient(circle at top right, rgba(200, 107, 60, 0.14), transparent 24%),
+        linear-gradient(180deg, #fbf7f1 0%, #f3f7f0 100%);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+.np-shell {
+    min-height: 100vh;
+}
+
+.np-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(14px);
+    background: rgba(251, 247, 241, 0.85);
+    border-bottom: 1px solid var(--np-border);
+}
+
+.np-brand {
+    display: inline-flex;
+    align-items: center;
+    color: var(--np-ink);
+    font-weight: 800;
+    font-size: 1.68rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+}
+
+.np-header-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 2rem;
+}
+
+.np-header-start {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.np-header-center {
+    display: flex;
+    justify-content: center;
+}
+
+.np-header-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.np-nav-list {
+    gap: 0.75rem;
+}
+
+.np-nav-link {
+    color: rgba(24, 48, 40, 0.8);
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    border-radius: 999px;
+    padding: 0.78rem 1.2rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.np-nav-link.active,
+.np-nav-link:hover {
+    color: var(--np-leaf);
+    background: rgba(53, 95, 75, 0.1);
+}
+
+.np-user-dropdown {
+    .dropdown-toggle::after {
+        margin-left: 0.6rem;
+    }
+}
+
+.np-user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 46px;
+    padding: 0.3rem 0.9rem 0.3rem 0.35rem;
+    border: 1px solid var(--np-border);
+    border-radius: 999px;
+    background: var(--np-surface-strong);
+    color: var(--np-ink);
+    box-shadow: 0 10px 24px rgba(24, 48, 40, 0.08);
+}
+
+.np-user-avatar {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--np-accent), #d98d65);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.np-user-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.np-user-name,
+.np-user-role {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.np-user-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.np-user-role {
+    color: rgba(24, 48, 40, 0.56);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.np-page {
+    padding: 2rem 0 3rem;
+}
+
+.np-user-actions {
+    min-width: 180px;
+    justify-content: flex-end;
+}
+
+.np-auth-button {
+    font-size: 0.98rem;
+    font-weight: 700;
+    padding: 0.55rem 0.95rem;
+}
+
+.np-hero,
+.np-card {
+    border: 1px solid var(--np-border);
+    border-radius: 1.5rem;
+    background: var(--np-surface);
+    box-shadow: 0 18px 40px rgba(24, 48, 40, 0.08);
+}
+
+.np-hero {
+    padding: 2rem;
+}
+
+.np-card {
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.np-card .h4,
+.np-card h2 {
+    font-size: 1.14rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.np-product-row {
+    width: 100%;
+    border: 1px solid var(--np-border);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 1rem 1.1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.np-product-row:hover,
+.np-product-row.active {
+    border-color: rgba(53, 95, 75, 0.35);
+    box-shadow: 0 14px 28px rgba(24, 48, 40, 0.08);
+    transform: translateY(-1px);
+}
+
+.np-product-row .fw-semibold {
+    font-size: 1.08rem;
+    font-weight: 700 !important;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.np-product-row .small {
+    font-size: 1rem !important;
+    line-height: 1.4;
+    color: var(--np-muted) !important;
+}
+
+.np-panel-shell {
+    position: relative;
+}
+
+.np-panel-shell-sm {
+    min-height: 212px;
+}
+
+.np-panel-shell-md {
+    min-height: 255px;
+}
+
+.np-panel-shell-lg {
+    min-height: 560px;
+}
+
+.np-panel-shell-xl {
+    min-height: 560px;
+}
+
+.np-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.25rem;
+    background: rgba(251, 247, 241, 0.76);
+    backdrop-filter: blur(3px);
+}
+
+.np-loading-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--np-border);
+    border-radius: 999px;
+    background: var(--np-surface-strong);
+    box-shadow: 0 10px 24px rgba(24, 48, 40, 0.08);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.np-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(53, 95, 75, 0.18);
+    border-top-color: var(--np-leaf);
+    border-radius: 999px;
+    animation: np-spin 0.85s linear infinite;
+}
+
+.np-inline-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+    background: rgba(231, 241, 231, 0.6);
+}
+
+.np-note-card {
+    border: 1px dashed var(--np-border);
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    background: rgba(246, 241, 232, 0.7);
+}
+
+.np-stat {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--np-leaf);
+}
+
+.np-section-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 0;
+}
+
+.np-section-subtitle,
+.np-muted {
+    color: var(--np-muted);
+}
+
+.np-table {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--np-border);
+}
+
+.np-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: var(--np-mint);
+    color: var(--np-leaf);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.np-empty {
+    border: 1px dashed var(--np-border);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: rgba(24, 48, 40, 0.7);
+    font-size: 1rem;
+}
+
+.np-metric-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.np-primary-button {
+    min-height: 44px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 0.98rem;
+}
+
+.form-label {
+    margin-bottom: 0.45rem;
+    color: rgba(24, 48, 40, 0.78);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.form-control,
+.form-select {
+    min-height: 47px;
+    border-color: rgba(24, 48, 40, 0.18);
+    border-radius: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--np-ink);
+    background-color: rgba(248, 250, 248, 0.92);
+    box-shadow: none;
+}
+
+.form-control::placeholder {
+    color: rgba(24, 48, 40, 0.42);
+    font-weight: 600;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(53, 95, 75, 0.34);
+    box-shadow: 0 0 0 0.2rem rgba(53, 95, 75, 0.08);
+    background-color: #fff;
+}
+
+.small.text-body-secondary,
+.text-body-secondary {
+    color: var(--np-muted) !important;
+    font-size: 1rem !important;
+    line-height: 1.4;
+}
+
+.fw-semibold {
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+@keyframes np-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
