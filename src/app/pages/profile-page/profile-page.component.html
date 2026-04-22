@@ -1,0 +1,100 @@
+<div class="container np-page">
+  <section class="np-hero mb-4">
+    <h1 class="np-section-title">Profile</h1>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="row g-4">
+    <div class="col-xl-7">
+      <section class="np-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h4 mb-0">Personal data</h2>
+          @if (profile()?.email; as email) {
+            <span class="np-chip">{{ email }}</span>
+          }
+        </div>
+
+        <div class="np-panel-shell np-panel-shell-md">
+          <form class="row g-3" [formGroup]="form" (ngSubmit)="saveProfile()">
+            <div class="col-md-6">
+              <label class="form-label" for="age">Age</label>
+              <input id="age" type="number" min="1" class="form-control" formControlName="age" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="goal">Goal</label>
+              <select id="goal" class="form-select" formControlName="goal">
+                @for (goalOption of goalOptions; track goalOption.value) {
+                  <option [value]="goalOption.value">{{ goalOption.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="heightCm">Height</label>
+              <input id="heightCm" type="number" min="0.1" step="0.1" class="form-control" formControlName="heightCm" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="weightKg">Weight</label>
+              <input id="weightKg" type="number" min="0.1" step="0.1" class="form-control" formControlName="weightKg" />
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-dark np-primary-button" type="submit" [disabled]="isSubmitting()">
+                {{ isSubmitting() ? 'Saving...' : 'Save profile' }}
+              </button>
+            </div>
+          </form>
+
+          @if (isLoading()) {
+            <div class="np-loading-overlay">
+              <div class="np-loading-card">
+                <div class="np-spinner"></div>
+                <span>Loading profile...</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="col-xl-5">
+      <section class="np-card">
+        <h2 class="h4 mb-3">Daily target</h2>
+        <div class="np-metric-grid np-panel-shell np-panel-shell-sm">
+          <div class="np-card py-3">
+            <div class="small text-body-secondary">Calories</div>
+            <div class="np-stat">{{ profile()?.targetCalories ?? 0 | number: '1.0-1' }}</div>
+          </div>
+          <div class="np-card py-3">
+            <div class="small text-body-secondary">Protein</div>
+            <div class="np-stat">{{ profile()?.targetProtein ?? 0 | number: '1.0-1' }}</div>
+          </div>
+          <div class="np-card py-3">
+            <div class="small text-body-secondary">Fat</div>
+            <div class="np-stat">{{ profile()?.targetFat ?? 0 | number: '1.0-1' }}</div>
+          </div>
+          <div class="np-card py-3">
+            <div class="small text-body-secondary">Carbohydrates</div>
+            <div class="np-stat">{{ profile()?.targetCarbohydrates ?? 0 | number: '1.0-1' }}</div>
+          </div>
+
+          @if (isLoading()) {
+            <div class="np-loading-overlay">
+              <div class="np-loading-card">
+                <div class="np-spinner"></div>
+                <span>Loading targets...</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
