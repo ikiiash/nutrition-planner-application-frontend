@@ -1,5 +1,5 @@
 export const environment = {
-  keyCloakUrl: 'http://localhost:8081',
+  keyCloakUrl: `${window.location.origin}/auth`,
   beUrl: '/api',
-  appUrl: 'http://localhost:4200',
+  appUrl: window.location.origin,
 };
