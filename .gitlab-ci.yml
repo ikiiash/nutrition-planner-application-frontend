@@ -1,31 +1,44 @@
 stages:
+  - validate
   - build
   # - deploy
 
 variables:
   IMAGE_NAME: "fsa-frontend"
   DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://127.0.0.1:2375
-  DOCKER_TLS_VERIFY: ""
+  DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
+
+validate:
+  stage: validate
+  tags:
+    - fsa
+  image: node:22-alpine
+  script:
+    - npm ci
+    - npm run build
 
 build:
   stage: build
   tags:
     - fsa
-  image: docker:latest
+  image: docker:28-cli
   services:
-    - docker:dind
+    - name: docker:28-dind
+      alias: docker
   before_script:
-    - until docker info &>/dev/null; do sleep 2 && echo "Cakam na Docker daemon..."; done
+    - until docker info >/dev/null 2>&1; do sleep 2; echo "Cakam na Docker daemon..."; done
     - export IMAGE_VERSION="${CI_JOB_ID}-${CI_COMMIT_SHORT_SHA}"
+    - test -n "$DOCKER_USERNAME" || (echo "Missing DOCKER_USERNAME" && exit 1)
+    - test -n "$DOCKER_PASSWORD" || (echo "Missing DOCKER_PASSWORD" && exit 1)
+    - test -n "$ACR_REGISTRY" || (echo "Missing ACR_REGISTRY" && exit 1)
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin "https://$ACR_REGISTRY"
     - docker build -t "$ACR_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION" -t "$ACR_REGISTRY/$IMAGE_NAME:latest" .
     - docker push "$ACR_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION"
     - docker push "$ACR_REGISTRY/$IMAGE_NAME:latest"
-  only:
-    - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 # deploy:
 #   stage: deploy
