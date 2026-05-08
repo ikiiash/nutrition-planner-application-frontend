@@ -12,7 +12,7 @@ variables:
 validate:
   stage: validate
   tags:
-    - fsa
+    - fsa-kiiashchenko
   image: node:22-alpine
   script:
     - npm ci
@@ -21,7 +21,7 @@ validate:
 build:
   stage: build
   tags:
-    - fsa
+    - fsa-kiiashchenko
   image: docker:28-cli
   services:
     - name: docker:28-dind
