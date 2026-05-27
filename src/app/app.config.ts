@@ -4,7 +4,8 @@ import {
   LOCALE_ID,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouteReuseStrategy } from '@angular/router';
+import { FoodPageReuseStrategy } from './core/food-page-reuse-strategy';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'sk' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'EUR' },
     provideOAuthClient(),
+    { provide: RouteReuseStrategy, useClass: FoodPageReuseStrategy },
     provideTranslateService({
       defaultLanguage: 'sk',
       lang: 'sk',

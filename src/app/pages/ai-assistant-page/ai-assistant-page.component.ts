@@ -41,6 +41,7 @@ export class AiAssistantPageComponent implements OnInit, AfterViewChecked {
     if (!this.chatState.sessionsLoaded()) {
       this.chatState.loadSessions();
     }
+    this.shouldScroll = true;
   }
 
   ngAfterViewChecked() {

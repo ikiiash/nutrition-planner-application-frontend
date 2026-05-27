@@ -1963,4 +1963,9 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
     h2 { font-size: 18px !important; }
     p { font-size: 13px; }
   }
+
+  /* Header: hide Register and brand text so Login button stays visible */
+  .register-btn { display: none !important; }
+  .np-brand-text { display: none; }
+  .premium-chip { display: none; }
 }
