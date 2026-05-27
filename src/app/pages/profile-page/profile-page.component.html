@@ -1,100 +1,247 @@
-<div class="container np-page">
-  <section class="np-hero mb-4">
-    <h1 class="np-section-title">Profile</h1>
-  </section>
+<div class="page-fill">
 
-  @if (errorMessage()) {
-    <div class="alert alert-danger" role="alert">
-      {{ errorMessage() }}
+  <div class="page-header" style="flex-shrink: 0">
+    <div>
+      <h1 class="page-title">Profile</h1>
+      <div class="page-subtitle">Your biometrics and nutrition goals</div>
     </div>
-  }
+  </div>
 
-  <div class="row g-4">
-    <div class="col-xl-7">
-      <section class="np-card">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="h4 mb-0">Personal data</h2>
-          @if (profile()?.email; as email) {
-            <span class="np-chip">{{ email }}</span>
-          }
+  <div class="profile-grid grid-fill" style="display: grid; grid-template-columns: 58fr 42fr; gap: 24px">
+
+    <!-- ── Left: form card ──────────────────────────────────────────────────── -->
+    <div class="card card-scroll" style="padding: 28px; position: relative">
+      @if (errorMessage()) {
+        <div style="background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--r-md);
+                    padding: 10px 14px; margin-bottom: 18px; font-size: 13px; color: var(--bad)">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="saveProfile()">
+
+        <!-- Personal info -->
+        <div class="section-label">Personal info</div>
+        <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px">
+
+          <div class="field" [class.has-value]="form.controls.nickname.value">
+            <input type="text" formControlName="nickname" placeholder=" " />
+            <label>Nickname</label>
+          </div>
+
+          <div class="field" [class.has-value]="form.controls.firstName.value">
+            <input type="text" formControlName="firstName" placeholder=" " />
+            <label>First name</label>
+          </div>
+
+          <div class="field" [class.has-value]="form.controls.gender.value" [class.error]="isInvalid('gender')">
+            <select formControlName="gender">
+              <option value=""> </option>
+              @for (opt of genderOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+            <label>Gender</label>
+            @if (isInvalid('gender')) { <div class="hint">Required</div> }
+          </div>
+
+          <div class="field" [class.has-value]="form.controls.age.value" [class.error]="isInvalid('age')">
+            <input type="number" min="1" max="120" formControlName="age" placeholder=" " />
+            <label>Age</label>
+            @if (isInvalid('age')) { <div class="hint">Enter a valid age (1–120)</div> }
+          </div>
+
+          <div class="field" [class.has-value]="form.controls.heightCm.value" [class.error]="isInvalid('heightCm')">
+            <input type="number" min="50" max="250" step="0.1" formControlName="heightCm" placeholder=" " />
+            <label>Height (cm)</label>
+            @if (isInvalid('heightCm')) { <div class="hint">50–250 cm</div> }
+          </div>
+
+          <div class="field" [class.has-value]="form.controls.weightKg.value" [class.error]="isInvalid('weightKg')">
+            <input type="number" min="20" max="300" step="0.1" formControlName="weightKg" placeholder=" " />
+            <label>Weight (kg)</label>
+            @if (isInvalid('weightKg')) { <div class="hint">20–300 kg</div> }
+          </div>
         </div>
 
-        <div class="np-panel-shell np-panel-shell-md">
-          <form class="row g-3" [formGroup]="form" (ngSubmit)="saveProfile()">
-            <div class="col-md-6">
-              <label class="form-label" for="age">Age</label>
-              <input id="age" type="number" min="1" class="form-control" formControlName="age" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label" for="goal">Goal</label>
-              <select id="goal" class="form-select" formControlName="goal">
-                @for (goalOption of goalOptions; track goalOption.value) {
-                  <option [value]="goalOption.value">{{ goalOption.label }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label" for="heightCm">Height</label>
-              <input id="heightCm" type="number" min="0.1" step="0.1" class="form-control" formControlName="heightCm" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label" for="weightKg">Weight</label>
-              <input id="weightKg" type="number" min="0.1" step="0.1" class="form-control" formControlName="weightKg" />
-            </div>
-
-            <div class="col-12">
-              <button class="btn btn-dark np-primary-button" type="submit" [disabled]="isSubmitting()">
-                {{ isSubmitting() ? 'Saving...' : 'Save profile' }}
-              </button>
-            </div>
-          </form>
-
-          @if (isLoading()) {
-            <div class="np-loading-overlay">
-              <div class="np-loading-card">
-                <div class="np-spinner"></div>
-                <span>Loading profile...</span>
+        <!-- Activity level -->
+        <div class="section-label" style="margin-top: 24px">Activity level</div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px">
+          @for (opt of activityOptions; track opt.value) {
+            <button type="button"
+              (click)="form.controls.activityLevel.setValue(opt.value)"
+              style="padding: 12px 10px; border-radius: var(--r-md); font-size: 12px; font-weight: 600;
+                     text-align: center; border: 1.5px solid; transition: all var(--t-fast);
+                     line-height: 1.35;"
+              [style.background]="form.controls.activityLevel.value === opt.value ? 'var(--brand-tint)' : 'var(--bg-elevated)'"
+              [style.borderColor]="form.controls.activityLevel.value === opt.value ? 'var(--brand)' : 'var(--border)'"
+              [style.color]="form.controls.activityLevel.value === opt.value ? 'var(--brand)' : 'var(--text-2)'">
+              <div>{{ opt.label }}</div>
+              <div style="font-weight: 400; font-size: 10.5px; color: var(--text-3); margin-top: 4px; line-height: 1.3">
+                {{ opt.description }}
               </div>
-            </div>
+            </button>
           }
         </div>
-      </section>
+        @if (isInvalid('activityLevel')) {
+          <div style="font-size: 12px; color: var(--bad); margin-bottom: 12px">Please select activity level</div>
+        }
+
+        <!-- Goal -->
+        <div class="section-label">Goal</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px">
+          @for (opt of goalOptions; track opt.value) {
+            <button type="button"
+              (click)="form.controls.goal.setValue(opt.value)"
+              style="padding: 14px 10px; border-radius: var(--r-md); font-size: 13px; font-weight: 600;
+                     border: 1.5px solid; transition: all var(--t-fast);"
+              [style.background]="form.controls.goal.value === opt.value ? 'var(--brand-tint)' : 'var(--bg-elevated)'"
+              [style.borderColor]="form.controls.goal.value === opt.value ? 'var(--brand)' : 'var(--border)'"
+              [style.color]="form.controls.goal.value === opt.value ? 'var(--brand)' : 'var(--text-2)'">
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+        @if (isInvalid('goal')) {
+          <div style="font-size: 12px; color: var(--bad); margin-bottom: 12px">Please select goal</div>
+        }
+
+        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting()" style="width: 100%; min-height: 48px">
+          {{ isSubmitting() ? 'Saving…' : 'Save profile' }}
+        </button>
+      </form>
+
+      @if (isLoading()) {
+        <div class="np-loading-overlay">
+          <div class="np-loading-card">
+            <div class="np-spinner"></div>
+            <span>Loading…</span>
+          </div>
+        </div>
+      }
     </div>
 
-    <div class="col-xl-5">
-      <section class="np-card">
-        <h2 class="h4 mb-3">Daily target</h2>
-        <div class="np-metric-grid np-panel-shell np-panel-shell-sm">
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Calories</div>
-            <div class="np-stat">{{ profile()?.targetCalories ?? 0 | number: '1.0-1' }}</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Protein</div>
-            <div class="np-stat">{{ profile()?.targetProtein ?? 0 | number: '1.0-1' }}</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Fat</div>
-            <div class="np-stat">{{ profile()?.targetFat ?? 0 | number: '1.0-1' }}</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Carbohydrates</div>
-            <div class="np-stat">{{ profile()?.targetCarbohydrates ?? 0 | number: '1.0-1' }}</div>
+    <!-- ── Right: metrics + micronutrients ──────────────────────────────────── -->
+    <div class="card-scroll" style="display: grid; gap: 20px; align-content: start; height: 100%">
+
+      <!-- Metrics card -->
+      <div class="card" style="padding: 24px">
+        <h2 class="card-title" style="margin-bottom: 20px">Daily targets</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px">
+
+          <div class="metric tint-brand">
+            <div class="label">BMR</div>
+            <div class="value">
+              @if (profile()?.bmr != null) {
+                <span [npCountUp]="profile()!.bmr!" [npCountUpDuration]="600"></span>
+              } @else { — }
+            </div>
+            <div class="unit">kcal at rest</div>
           </div>
 
-          @if (isLoading()) {
-            <div class="np-loading-overlay">
-              <div class="np-loading-card">
-                <div class="np-spinner"></div>
-                <span>Loading targets...</span>
-              </div>
+          <div class="metric tint-brand">
+            <div class="label">TDEE</div>
+            <div class="value">
+              @if (profile()?.tdee != null) {
+                <span [npCountUp]="profile()!.tdee!" [npCountUpDuration]="600" [npCountUpDelay]="80"></span>
+              } @else { — }
             </div>
-          }
+            <div class="unit">kcal/day total</div>
+          </div>
+
+          <div class="metric tint-accent">
+            <div class="label">Calories</div>
+            <div class="value">
+              @if (profile()?.targetCalories != null) {
+                <span [npCountUp]="profile()!.targetCalories!" [npCountUpDuration]="600" [npCountUpDelay]="160"></span>
+              } @else { — }
+            </div>
+            <div class="unit">kcal target</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Protein</div>
+            <div class="value">
+              @if (profile()?.targetProtein != null) {
+                <span [npCountUp]="profile()!.targetProtein!" [npCountUpDuration]="600" [npCountUpDelay]="240" [npCountUpDecimals]="1"></span>
+              } @else { — }
+            </div>
+            <div class="unit">g / day</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Fat</div>
+            <div class="value">
+              @if (profile()?.targetFat != null) {
+                <span [npCountUp]="profile()!.targetFat!" [npCountUpDuration]="600" [npCountUpDelay]="320" [npCountUpDecimals]="1"></span>
+              } @else { — }
+            </div>
+            <div class="unit">g / day</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Carbs</div>
+            <div class="value">
+              @if (profile()?.targetCarbohydrates != null) {
+                <span [npCountUp]="profile()!.targetCarbohydrates!" [npCountUpDuration]="600" [npCountUpDelay]="400" [npCountUpDecimals]="1"></span>
+              } @else { — }
+            </div>
+            <div class="unit">g / day</div>
+          </div>
         </div>
-      </section>
+      </div>
+
+      <!-- Micronutrient norms card -->
+      <div class="card" style="padding: 24px">
+        <div class="collapsible-section" style="border-top: none; padding-top: 0; margin-top: 0">
+          <button type="button"
+            (click)="microNormsOpen.set(!microNormsOpen())"
+            style="display: flex; align-items: center; justify-content: space-between; width: 100%;
+                   padding: 4px 0; font-weight: 600; font-size: 14px; color: var(--text); background: none; border: none">
+            <span>
+              Micronutrient norms
+              @if (profile()?.gender) {
+                <span class="chip" style="margin-left: 8px">
+                  {{ profile()!.gender === 'FEMALE' ? 'Female' : 'Male' }}
+                </span>
+              }
+            </span>
+            <span class="chev-toggle" [class.open]="microNormsOpen()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+          </button>
+
+          <div class="collapsible" [class.open]="microNormsOpen()">
+            <div>
+              @if (!profile()?.gender) {
+                <div style="padding-top: 14px; font-size: 13px; color: var(--text-3); font-style: italic">
+                  Save your gender to see personalized norms.
+                </div>
+              } @else {
+                <div style="padding-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px">
+                  @for (group of normGroups(); track group.title) {
+                    <div>
+                      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+                                  color: var(--text-3); margin-bottom: 10px">{{ group.title }}</div>
+                      @for (item of group.items; track item.label) {
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;
+                                    padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px">
+                          <span style="color: var(--text-2)">{{ item.label }}</span>
+                          <span class="num" style="font-weight: 600; color: var(--text)">{{ item.norm }} {{ item.unit }}</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
