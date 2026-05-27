@@ -58,9 +58,8 @@ export class FinancesPageComponent {
     if (source === 'products') {
       for (const p of this.foodProducts()) {
         if (p.price <= 0 || p.grams <= 0) continue;
-        const s = 100 / p.grams;
         rows.push({ name: p.name, tag: p.category || null, price: p.price / p.grams * 100,
-          kcal: p.calories * s, protein: p.protein * s, fat: p.fat * s, carbs: p.carbohydrates * s });
+          kcal: p.calories, protein: p.protein, fat: p.fat, carbs: p.carbohydrates });
       }
     } else if (source === 'meals') {
       for (const m of this.meals()) {
@@ -105,7 +104,7 @@ export class FinancesPageComponent {
     return defs
       .map(def => {
         const list = products
-          .map(p => { const v = def.extract(p); return v != null && v > 0 ? { name: p.name, per100g: +(v / p.grams * 100).toFixed(2), perEuro: v / p.price } : null; })
+          .map(p => { const v = def.extract(p); return v != null && v > 0 ? { name: p.name, per100g: +v.toFixed(2), perEuro: v * p.grams / 100 / p.price } : null; })
           .filter((x): x is { name: string; per100g: number; perEuro: number } => x !== null)
           .sort((a, b) => b.perEuro - a.perEuro);
         return list.length ? { label: def.label, unit: def.unit, best: list[0], count: list.length } : null;
@@ -142,12 +141,15 @@ export class FinancesPageComponent {
 
   protected readonly fridgeNutrition = computed(() =>
     this.fridge().reduce(
-      (acc, p) => ({
-        calories: acc.calories + p.calories,
-        protein:  acc.protein + p.protein,
-        fat:      acc.fat + p.fat,
-        carbs:    acc.carbs + p.carbohydrates,
-      }),
+      (acc, p) => {
+        const g = (p.fridgeGrams ?? 0) / 100;
+        return {
+          calories: acc.calories + p.calories * g,
+          protein:  acc.protein  + p.protein * g,
+          fat:      acc.fat      + p.fat * g,
+          carbs:    acc.carbs    + p.carbohydrates * g,
+        };
+      },
       { calories: 0, protein: 0, fat: 0, carbs: 0 },
     ),
   );
@@ -244,9 +246,10 @@ export class FinancesPageComponent {
     if (!foodProductId || grams <= 0) return;
     const p = this.foodProducts().find((fp) => fp.id === Number(foodProductId));
     if (!p || p.grams <= 0) return;
-    const b = 100 / p.grams;
     this.mergeIntoCart(
-      [{ id: p.id, name: p.name, grams, cal100: p.calories * b, p100: p.protein * b, f100: p.fat * b, c100: p.carbohydrates * b, pr100: p.price * b }],
+      [{ id: p.id, name: p.name, grams,
+         cal100: p.calories, p100: p.protein, f100: p.fat, c100: p.carbohydrates,
+         pr100: p.price / p.grams * 100 }],
       considerFridge,
     );
     this.addProductForm.patchValue({ grams: 100 });

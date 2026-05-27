@@ -7,7 +7,7 @@
     </div>
   </div>
 
-  <div class="profile-grid grid-fill" style="display: grid; grid-template-columns: 58fr 42fr; gap: 24px">
+  <div class="profile-grid grid-fill">
 
     <!-- ── Left: form card ──────────────────────────────────────────────────── -->
     <div class="card card-scroll" style="padding: 28px; position: relative">
@@ -22,7 +22,7 @@
 
         <!-- Personal info -->
         <div class="section-label">Personal info</div>
-        <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px">
+        <div class="form-grid-2">
 
           <div class="field" [class.has-value]="form.controls.nickname.value">
             <input type="text" formControlName="nickname" placeholder=" " />
@@ -89,7 +89,7 @@
 
         <!-- Goal -->
         <div class="section-label">Goal</div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px">
+        <div class="goal-grid">
           @for (opt of goalOptions; track opt.value) {
             <button type="button"
               (click)="form.controls.goal.setValue(opt.value)"

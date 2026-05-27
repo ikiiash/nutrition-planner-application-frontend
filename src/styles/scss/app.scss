@@ -1822,6 +1822,29 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   &.active { background: var(--brand); color: var(--text-on-brand); }
 }
 
+/* Profile page two-column grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  gap: 24px;
+  > * { min-width: 0; }
+}
+
+/* Two-column form grid */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+/* Goal selector: 3 columns */
+.goal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
 /* Activity level grid — 5 columns by default, overridden in media queries */
 .activity-grid {
   display: grid;
@@ -1852,7 +1875,7 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   /* Common page grids */
   .profile-grid,
   .food-grid,
-  .stat-grid { grid-template-columns: 1fr !important; }
+  .stat-grid { grid-template-columns: 1fr; overflow-x: hidden; }
   .plan-grid  { grid-template-columns: 1fr !important; }
 
   /* FSL layout: stack sidebar above main instead of side-by-side */
@@ -1929,9 +1952,13 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   /* Page title */
   .page-title, .np-section-title { font-size: 22px; }
 
-  /* Form 2-col grids collapse to single column */
+  /* Form and goal grids collapse to single column */
   .form-grid-2 {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+  }
+
+  .goal-grid {
+    grid-template-columns: 1fr;
   }
 
   /* Activity level: 2 columns, last item spans full width */
