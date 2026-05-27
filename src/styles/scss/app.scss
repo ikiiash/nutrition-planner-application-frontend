@@ -1926,6 +1926,12 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
     grid-template-columns: 1fr !important;
   }
 
+  /* Activity level: 2 columns, last item spans full width */
+  .activity-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    button:last-child { grid-column: 1 / -1; }
+  }
+
   /* Toast position */
   .np-toast { bottom: 16px; right: 16px; left: 16px; }
 
@@ -1968,4 +1974,10 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   .register-btn { display: none !important; }
   .np-brand-text { display: none; }
   .premium-chip { display: none; }
+
+  /* Activity level: single column on very small screens */
+  .activity-grid {
+    grid-template-columns: 1fr !important;
+    button:last-child { grid-column: auto; }
+  }
 }
