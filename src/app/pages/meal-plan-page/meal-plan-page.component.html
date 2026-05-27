@@ -1,137 +1,409 @@
-<div class="container np-page">
-  <section class="np-hero mb-4">
-    <div class="row g-4 align-items-center">
-      <div class="col-lg-8">
-        <h1 class="np-section-title">Meal plan</h1>
-      </div>
+<div class="page-fill">
 
-      <div class="col-lg-4">
-        <div class="np-card bg-transparent">
-          <div class="small text-body-secondary mb-2">Plan navigation</div>
-          <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-dark" type="button">Current week</button>
-            <button class="btn btn-outline-dark" type="button">Cutting phase</button>
-            <button class="btn btn-outline-dark" type="button">Create new plan</button>
-          </div>
-        </div>
-      </div>
+  <div class="page-header" style="flex-shrink: 0">
+    <div>
+      <h1 class="page-title">Meal plan</h1>
+      <div class="page-subtitle">Schedule what you'll eat and watch macros add up.</div>
     </div>
-  </section>
-
-  <div class="row g-4">
-    <div class="col-xl-8">
-      <section class="np-card">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div><h2 class="h4 mb-1">Plan days</h2></div>
-          <span class="np-chip">7-day example</span>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="np-card py-3">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <div class="fw-semibold">Monday</div>
-                  <div class="small text-body-secondary">Meals</div>
-                </div>
-                <span class="np-chip">2 050 kcal</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="np-card py-3">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <div class="fw-semibold">Tuesday</div>
-                  <div class="small text-body-secondary">Meals</div>
-                </div>
-                <span class="np-chip">1 940 kcal</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="np-card py-3">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <div class="fw-semibold">Wednesday</div>
-                  <div class="small text-body-secondary">Meals</div>
-                </div>
-                <span class="np-chip">2 120 kcal</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="np-card py-3">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <div class="fw-semibold">Thursday</div>
-                  <div class="small text-body-secondary">Meals</div>
-                </div>
-                <span class="np-chip">1 980 kcal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div class="col-xl-4">
-      <section class="np-card">
-        <h2 class="h4 mb-3">Daily totals</h2>
-        <div class="np-metric-grid">
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Calories</div>
-            <div class="np-stat">2 050</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Protein</div>
-            <div class="np-stat">145 g</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Fat</div>
-            <div class="np-stat">63 g</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Carbs</div>
-            <div class="np-stat">210 g</div>
-          </div>
-        </div>
-      </section>
-    </div>
+    <span style="font-size: 12px; color: var(--text-3)">
+      Plans <span class="chip brand" style="margin-left: 6px">{{ plans().length }}</span>
+    </span>
   </div>
 
-  <section class="np-card mt-4">
-    <div class="row g-4">
-      <div class="col-xl-4"><h2 class="h4 mb-2">Full plan summary</h2></div>
+  @if (planError()) {
+    <div style="flex-shrink: 0; background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--r-md);
+                padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--bad)">
+      {{ planError() }}
+    </div>
+  }
 
-      <div class="col-xl-8">
-        <div class="np-metric-grid">
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Plan calories</div>
-            <div class="np-stat">14 220</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Plan protein</div>
-            <div class="np-stat">1 015 g</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Plan fats</div>
-            <div class="np-stat">430 g</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Plan carbs</div>
-            <div class="np-stat">1 470 g</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Nutrients</div>
-            <div class="fw-semibold">Summary</div>
-          </div>
-          <div class="np-card py-3">
-            <div class="small text-body-secondary">Plan switching</div>
-            <div class="fw-semibold">Selection</div>
-          </div>
+  <div class="plan-grid grid-fill" style="display: grid; grid-template-columns: 22fr 50fr 28fr; gap: 20px">
+
+    <!-- ── LEFT: plan list ───────────────────────────────────────────────────── -->
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; overflow: hidden">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-shrink: 0">
+        <h2 class="card-title">My plans</h2>
+        <button class="btn-icon" type="button" title="New plan" (click)="startCreateMode(); showNewPlanForm.set(true)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="card-scroll" style="flex: 1; min-height: 0">
+        @if (isPlansLoading()) {
+          <div style="text-align: center; padding: 24px; color: var(--text-3); font-size: 13px">Loading…</div>
+        }
+
+        <div style="display: grid; gap: 8px">
+          @for (plan of plans(); track plan.id) {
+            <button type="button" (click)="selectPlan(plan); showNewPlanForm.set(false)"
+              style="display: block; text-align: left; padding: 14px; border-radius: var(--r-md); transition: all 150ms;"
+              [style.background]="selectedPlanId() === plan.id ? 'var(--brand-tint)' : 'var(--bg-elevated)'"
+              [style.border]="selectedPlanId() === plan.id ? '1px solid var(--brand-soft)' : '1px solid var(--border)'"
+              [style.border-left]="selectedPlanId() === plan.id ? '3px solid var(--brand)' : '1px solid var(--border)'"
+              [style.padding-left]="selectedPlanId() === plan.id ? '12px' : '14px'">
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+                  <span style="font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ plan.name }}</span>
+                  @if (plan.isActive) {
+                    <span class="chip" style="background: var(--ok-soft); color: var(--ok); flex-shrink: 0">Active</span>
+                  }
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0">
+                  <span class="chip brand">{{ plan.numberOfDays }}d</span>
+                  <button type="button" (click)="toggleActivePlan(plan, $event)"
+                    [disabled]="isActivating()"
+                    title="{{ plan.isActive ? 'Deactivate plan' : 'Set as active plan' }}"
+                    style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid; display: flex; align-items: center; justify-content: center; transition: all 150ms; flex-shrink: 0"
+                    [style.background]="plan.isActive ? 'var(--ok-soft)' : 'var(--bg-subtle)'"
+                    [style.borderColor]="plan.isActive ? 'var(--ok)' : 'var(--border)'"
+                    [style.color]="plan.isActive ? 'var(--ok)' : 'var(--text-3)'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </button>
+          }
+          @empty {
+            @if (!isPlansLoading()) {
+              <div style="text-align: center; padding: 24px 8px; color: var(--text-3); font-size: 13px">
+                No plans yet. Create one!
+              </div>
+            }
+          }
         </div>
       </div>
     </div>
-  </section>
+
+    <!-- ── CENTER: plan days + meal slots ───────────────────────────────────── -->
+    <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column">
+
+      @if (isPlansLoading() && !selectedPlan() && !showNewPlanForm()) {
+        <!-- Skeleton while loading -->
+        <div style="padding: 24px; flex: 1; display: flex; align-items: center; justify-content: center">
+          <span style="font-size: 13px; color: var(--text-3)">Loading…</span>
+        </div>
+
+      } @else if (showNewPlanForm() || (!selectedPlan() && !showNewPlanForm())) {
+        <!-- New plan form / empty create prompt -->
+        <div style="padding: 24px; overflow-y: auto; flex: 1">
+          <h2 class="card-title" style="margin-bottom: 18px">New plan</h2>
+          <form [formGroup]="planForm" (ngSubmit)="savePlan(); showNewPlanForm.set(false)">
+            <div class="field" [class.has-value]="planForm.controls.name.value">
+              <input type="text" formControlName="name" placeholder=" " />
+              <label>Plan name</label>
+            </div>
+            <div class="field" [class.has-value]="planForm.controls.numberOfDays.value">
+              <input type="number" min="1" max="30" formControlName="numberOfDays" placeholder=" " />
+              <label>Number of days</label>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 8px">
+              <button class="btn btn-primary" type="submit" [disabled]="isPlanSubmitting()">
+                {{ isPlanSubmitting() ? 'Creating…' : 'Create plan' }}
+              </button>
+              @if (plans().length > 0 || showNewPlanForm()) {
+                <button class="btn btn-ghost" type="button" (click)="showNewPlanForm.set(false); startCreateMode()">Cancel</button>
+              }
+            </div>
+          </form>
+        </div>
+
+      } @else if (selectedPlan()) {
+        <!-- Plan header + day chips — fixed, never scrolls -->
+        <div style="flex-shrink: 0; padding: 20px 24px 0; border-bottom: 1px solid var(--border)">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px">
+            <div>
+              <h2 class="card-title" style="display: inline-block; margin-right: 10px">{{ selectedPlan()!.name }}</h2>
+              <span class="chip brand">{{ selectedPlan()!.numberOfDays }} days</span>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="btn btn-ghost btn-sm" type="button"
+                      (click)="startCreateMode(); showNewPlanForm.set(true)">New plan</button>
+              <button class="btn btn-ghost btn-sm" type="button" style="color: var(--bad)"
+                      (click)="deletePlan()">Delete</button>
+            </div>
+          </div>
+
+          <!-- Day selector chip-row -->
+          <div class="chip-row" style="padding: 10px 0 16px; overflow-y: visible">
+            @for (day of selectedPlan()!.days; track day.id; let i = $index) {
+              <button type="button" (click)="selectedDayIndex.set(i)"
+                style="flex-shrink: 0; padding: 8px 16px; border-radius: 14px; border: 1px solid;
+                       transition: all 150ms; font-size: 13px; font-weight: 600; position: relative;"
+                [style.background]="selectedDayIndex() === i ? 'var(--brand)' : (todayDayIndex() === i ? 'var(--ok-soft)' : 'var(--bg-elevated)')"
+                [style.color]="selectedDayIndex() === i ? 'var(--text-on-brand)' : (todayDayIndex() === i ? 'var(--ok)' : 'var(--text-2)')"
+                [style.borderColor]="selectedDayIndex() === i ? 'var(--brand)' : (todayDayIndex() === i ? 'var(--ok)' : 'var(--border)')">
+                Day {{ i + 1 }}
+                @if (todayDayIndex() === i) {
+                  <span style="position: absolute; top: -6px; right: -4px; font-size: 9px; font-weight: 700;
+                               background: var(--ok); color: #fff; border-radius: 6px; padding: 1px 4px; letter-spacing: .04em">
+                    TODAY
+                  </span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- meal slots — scrollable area -->
+        <div class="card-scroll" style="flex: 1; min-height: 0; padding: 20px 24px 24px">
+        <div class="slot-grid" style="display: flex; flex-direction: column; gap: 14px">
+          @for (mealType of mealTypes; track mealType) {
+            <div style="background: var(--bg-elevated); border: 1px solid var(--border);
+                        border-radius: var(--r-lg); overflow: hidden;"
+                 [style.border-left]="'4px solid ' + slotColors[mealType].color">
+
+              <!-- slot header -->
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <span style="font-weight: 700; font-size: 13px; color: var(--text); text-transform: uppercase; letter-spacing: .08em">
+                    {{ mealTypeLabels[mealType] }}
+                  </span>
+                  @if (totalCaloriesForType(mealType) > 0) {
+                    <span class="chip"
+                      [style.background]="slotColors[mealType].soft"
+                      [style.color]="slotColors[mealType].color">
+                      {{ totalCaloriesForType(mealType) | number:'1.0-0' }} kcal
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- entries list -->
+              <div style="padding: 0 16px 14px">
+                @for (entry of entriesForType(mealType); track entry.id) {
+                  <div class="slide-in" style="display: flex; justify-content: space-between; align-items: center;
+                              padding: 10px 12px; background: var(--bg-subtle); border-radius: var(--r-md); margin-bottom: 6px">
+                    <div style="min-width: 0">
+                      <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+                        {{ entryLabel(entry) }}
+                      </div>
+                      <div class="mono" style="font-size: 11px; color: var(--text-3)">
+                        {{ entry.calories | number:'1.0-0' }} kcal · {{ entry.protein | number:'1.0-1' }}P · {{ entry.fat | number:'1.0-1' }}F · {{ entry.carbohydrates | number:'1.0-1' }}C
+                      </div>
+                    </div>
+                    <button class="btn-icon danger" type="button" style="width: 28px; height: 28px"
+                            (click)="removeEntry(entry.id)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                        <path d="M18 6 6 18M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+                @if (entriesForType(mealType).length === 0) {
+                  <div style="padding: 16px; text-align: center; color: var(--text-3); font-size: 13px;
+                              border: 1.5px dashed var(--border); border-radius: 8px">No entries yet</div>
+                }
+              </div>
+
+              <!-- inline add-entry form — 2-row compact layout -->
+              <div style="background: var(--bg-subtle); padding: 10px 14px; display: flex; flex-direction: column; gap: 6px">
+                @if (addEntryForms[mealType].controls.entryType.value === 'MEAL') {
+                  <div style="display: grid; grid-template-columns: 80px 1fr; gap: 6px">
+                    <select [formControl]="addEntryForms[mealType].controls.entryType"
+                      style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px;
+                             padding: 6px 8px; font-size: 12px; font-weight: 600; font-family: inherit; color: var(--text)">
+                      <option value="MEAL">Meal</option>
+                      <option value="FOOD_PRODUCT">Product</option>
+                    </select>
+                    <select [formControl]="addEntryForms[mealType].controls.mealId"
+                      style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px;
+                             padding: 6px 8px; font-size: 12px; font-family: inherit; color: var(--text)">
+                      <option [value]="null">— select meal —</option>
+                      @for (m of meals(); track m.id) {
+                        <option [value]="m.id">{{ m.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 34px; gap: 6px; align-items: center">
+                    <input type="number" min="1" step="1"
+                           [formControl]="addEntryForms[mealType].controls.portions"
+                           placeholder="Servings"
+                           style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border);
+                                  border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; color: var(--text)" />
+                    <button type="button" (click)="addEntry(mealType)" [disabled]="isEntrySubmitting()[mealType]"
+                      style="width: 34px; height: 34px; border-radius: 8px; border: none; display: grid; place-items: center; color: #fff; cursor: pointer; flex-shrink: 0"
+                      [style.background]="slotColors[mealType].color">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
+                } @else {
+                  <div style="display: grid; grid-template-columns: 80px 1fr; gap: 6px">
+                    <select [formControl]="addEntryForms[mealType].controls.entryType"
+                      style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px;
+                             padding: 6px 8px; font-size: 12px; font-weight: 600; font-family: inherit; color: var(--text)">
+                      <option value="MEAL">Meal</option>
+                      <option value="FOOD_PRODUCT">Product</option>
+                    </select>
+                    <select [formControl]="addEntryForms[mealType].controls.foodProductId"
+                      style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px;
+                             padding: 6px 8px; font-size: 12px; font-family: inherit; color: var(--text)">
+                      <option [value]="null">— select product —</option>
+                      @for (p of foodProducts(); track p.id) {
+                        <option [value]="p.id">{{ p.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 34px; gap: 6px; align-items: center">
+                    <input type="number" min="10" step="10"
+                           [formControl]="addEntryForms[mealType].controls.grams"
+                           placeholder="Grams"
+                           style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border);
+                                  border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; color: var(--text)" />
+                    <button type="button" (click)="addEntry(mealType)" [disabled]="isEntrySubmitting()[mealType]"
+                      style="width: 34px; height: 34px; border-radius: 8px; border: none; display: grid; place-items: center; color: #fff; cursor: pointer; flex-shrink: 0"
+                      [style.background]="slotColors[mealType].color">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+        </div>
+      }
+    </div>
+
+    <!-- ── RIGHT: day totals + micronutrients + plan summary ─────────────────── -->
+    <div class="card-scroll" style="display: grid; gap: 16px; align-content: start; height: 100%">
+
+      @if (selectedPlan() && !showNewPlanForm()) {
+        <!-- Day totals -->
+        <div class="card" style="padding: 22px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px">
+            <h2 class="card-title" style="font-size: 16px">Day {{ selectedDayIndex() + 1 }} totals</h2>
+            @if (dailyTotals(); as totals) {
+              <span class="chip brand">{{ totals.calories | number:'1.0-0' }} kcal</span>
+            }
+          </div>
+
+          @if (dailyTotals(); as totals) {
+            @for (macro of [
+              { label: 'Calories', value: totals.calories, target: userProfile()?.targetCalories, unit: 'kcal', tone: 'info', delay: 0, decimals: 0 },
+              { label: 'Protein',  value: totals.protein,  target: userProfile()?.targetProtein,  unit: 'g', tone: 'info', delay: 80,  decimals: 1 },
+              { label: 'Fat',      value: totals.fat,      target: userProfile()?.targetFat,       unit: 'g', tone: 'fat',  delay: 160, decimals: 1 },
+              { label: 'Carbs',    value: totals.carbohydrates, target: userProfile()?.targetCarbohydrates, unit: 'g', tone: 'carbs', delay: 240, decimals: 1 }
+            ]; track macro.label) {
+              <div style="margin-bottom: 14px">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px">
+                  <span style="font-size: 13px; font-weight: 500; color: var(--text-2)">{{ macro.label }}</span>
+                  <span style="font-size: 12px; color: var(--text-3)">
+                    <span class="num" style="color: var(--text); font-weight: 600; font-size: 14px">
+                      <span [npCountUp]="macro.value" [npCountUpDuration]="600" [npCountUpDelay]="macro.delay" [npCountUpDecimals]="macro.decimals"></span>
+                    </span>
+                    @if (macro.target) {
+                      <span class="num"> / {{ macro.target | number:'1.0-0' }} {{ macro.unit }}</span>
+                    }
+                  </span>
+                </div>
+                @if (macro.target) {
+                  <div class="progress">
+                    <div class="bar"
+                         [class]="rawPercent(macro.value, macro.target) > 100 ? 'bad' : macro.tone"
+                         [style.width.%]="targetPercent(macro.value, macro.target)"></div>
+                  </div>
+                  <div style="display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 4px">
+                    <span style="font-size: 11px"
+                          [style.color]="rawPercent(macro.value, macro.target) > 100 ? 'var(--bad)' : 'var(--text-3)'">
+                      {{ rawPercent(macro.value, macro.target) }}%
+                    </span>
+                    @if (overAmount(macro.value, macro.target) > 0) {
+                      <span class="chip bad" style="font-size: 10px; padding: 1px 6px">
+                        +{{ overAmount(macro.value, macro.target) | number:'1.0-0' }} {{ macro.unit }}
+                      </span>
+                    }
+                  </div>
+                } @else {
+                  <div style="margin-top: 4px; font-size: 11px; color: var(--text-3)">
+                    No target — <a routerLink="/profile" style="color: var(--brand); text-decoration: underline; cursor: pointer">set up your profile</a>
+                  </div>
+                }
+              </div>
+            }
+          } @else {
+            <div style="font-size: 13px; color: var(--text-3); text-align: center; padding: 16px 0">No data yet for this day</div>
+          }
+        </div>
+
+        <!-- Micronutrients collapsible -->
+        <div class="card" style="padding: 22px">
+          <div class="collapsible-section" style="border-top: none; padding-top: 0; margin-top: 0">
+            <button type="button"
+              (click)="dayMicroOpen.set(!dayMicroOpen())"
+              style="display: flex; align-items: center; justify-content: space-between; width: 100%;
+                     padding: 4px 0; font-weight: 600; font-size: 14px; color: var(--text); background: none; border: none">
+              Micronutrients
+              <span class="chev-toggle" [class.open]="dayMicroOpen()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </button>
+            <div class="collapsible" [class.open]="dayMicroOpen()">
+              <div>
+                <div style="padding-top: 14px; display: grid; gap: 10px">
+                  @for (row of dailyMicroRows(); track row.label) {
+                    <div>
+                      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 4px">
+                        <span>{{ row.label }}</span>
+                        <div style="display: flex; align-items: center; gap: 5px">
+                          <span class="num" [style.color]="row.over ? 'var(--bad)' : 'var(--text-3)'">{{ row.rawPct }}%</span>
+                          @if (row.over) {
+                            <span class="chip bad" style="font-size: 10px; padding: 1px 5px">
+                              +{{ row.rawPct - 100 }}%
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="progress">
+                        <div class="bar" [class.bad]="row.over" [style.width.%]="row.pct"></div>
+                      </div>
+                    </div>
+                  }
+                  @empty {
+                    <div style="font-size: 13px; color: var(--text-3)">No micronutrient data yet</div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan summary -->
+        <div class="card" style="padding: 22px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px">
+            <h2 class="card-title" style="font-size: 16px">Plan summary</h2>
+            <span class="chip">{{ selectedPlan()!.numberOfDays }} days</span>
+          </div>
+          @if (planTotals(); as totals) {
+            @for (row of [
+              { label: 'Calories', avg: totals.calories / selectedPlan()!.numberOfDays, target: userProfile()?.targetCalories, unit: 'kcal' },
+              { label: 'Protein',  avg: totals.protein / selectedPlan()!.numberOfDays,  target: userProfile()?.targetProtein,  unit: 'g' },
+              { label: 'Fat',      avg: totals.fat / selectedPlan()!.numberOfDays,      target: userProfile()?.targetFat,      unit: 'g' },
+              { label: 'Carbs',    avg: totals.carbohydrates / selectedPlan()!.numberOfDays, target: userProfile()?.targetCarbohydrates, unit: 'g' }
+            ]; track row.label) {
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border)">
+                <span style="font-size: 13px; color: var(--text-2)">{{ row.label }}</span>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span class="num" style="font-size: 13px; font-weight: 600">{{ row.avg | number:'1.0-0' }} {{ row.unit }}</span>
+                  @if (row.target) {
+                    <span class="num" style="font-size: 11px; color: var(--text-3)">/ {{ row.target }}</span>
+                    <span class="chip" [ngClass]="deltaClass(row.avg, row.target)"
+                          style="font-size: 11px; min-width: 50px; justify-content: center; display: inline-flex">
+                      {{ deltaPct(row.avg, row.target) }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+
+    </div>
+
+  </div>
 </div>
