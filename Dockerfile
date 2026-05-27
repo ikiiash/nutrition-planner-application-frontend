@@ -15,7 +15,7 @@ RUN npm ci
 COPY . .
 
 # Build the Angular app with the production/default environment for AKS ingress URLs
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Use a smaller, production-ready image as the final image
 FROM nginx:alpine
