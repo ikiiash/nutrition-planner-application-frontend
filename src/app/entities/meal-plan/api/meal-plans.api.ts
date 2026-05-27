@@ -40,6 +40,10 @@ export class MealPlansApi {
     return this.http.put<MealPlan>(`${this.baseUrl}/${id}/deactivate`, {});
   }
 
+  deductFridge(id: number): Observable<MealPlan> {
+    return this.http.post<MealPlan>(`${this.baseUrl}/${id}/deduct-fridge`, {});
+  }
+
   addPlanEntry(mealPlanId: number, dayId: number, req: AddPlanEntryRequest): Observable<PlanEntry> {
     return this.http.post<PlanEntry>(`${this.baseUrl}/${mealPlanId}/days/${dayId}/entries`, req);
   }

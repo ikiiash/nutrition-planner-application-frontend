@@ -70,6 +70,7 @@ export interface MealPlan {
   days: PlanDay[];
   isActive?: boolean;
   activatedAt?: string | null;
+  lastDeductedDayNumber?: number;
   totalCalories: number;
   totalProtein: number;
   totalFat: number;

@@ -25,9 +25,6 @@ type AddEntryFormGroup = FormGroup<{
   grams: FormControl<number>;
 }>;
 
-const FRIDGE_KEY = 'np_fridge_v1';
-const DEDUCTIONS_KEY = 'np_plan_deductions_v1';
-
 const MEAL_TYPES: MealTypeEnum[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
 const MEAL_TYPE_LABELS: Record<MealTypeEnum, string> = {
   BREAKFAST: 'Breakfast',
@@ -137,7 +134,10 @@ export class MealPlanPageComponent {
       .subscribe({
         next: (plans) => {
           this.plans.set(plans);
-          this.performFridgeDeductions(plans);
+          const active = plans.find(p => p.isActive);
+          if (active) {
+            this.mealPlansApi.deductFridge(active.id).subscribe({ error: () => {} });
+          }
         },
         error: (err) => this.planError.set(err?.error?.message ?? 'Unable to load meal plans.'),
       });
@@ -452,70 +452,4 @@ export class MealPlanPageComponent {
     return Math.min(Math.max(diffDays, 0), plan.numberOfDays - 1);
   }
 
-  private performFridgeDeductions(plans: MealPlan[]): void {
-    const activePlan = plans.find(p => p.isActive);
-    if (!activePlan?.activatedAt) return;
-
-    const activatedAt = new Date(activePlan.activatedAt + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const daysElapsed = Math.floor((today.getTime() - activatedAt.getTime()) / 86400000);
-
-    const deductionState: Record<number, number> = JSON.parse(localStorage.getItem(DEDUCTIONS_KEY) ?? '{}');
-    const lastDeducted = deductionState[activePlan.id] ?? 0;
-
-    const daysToDeduct = activePlan.days.filter(
-      d => d.dayNumber > lastDeducted && d.dayNumber <= daysElapsed,
-    );
-    if (daysToDeduct.length === 0) return;
-
-    const mealIds = new Set<number>();
-    for (const day of daysToDeduct) {
-      for (const entry of day.entries) {
-        if (entry.entryType === 'MEAL' && entry.mealId) mealIds.add(entry.mealId);
-      }
-    }
-
-    const applyDeductions = (mealMap: Map<number, import('../../entities/meal/model/meal.model').Meal>) => {
-      const deductions = new Map<number, number>();
-
-      for (const day of daysToDeduct) {
-        for (const entry of day.entries) {
-          if (entry.entryType === 'FOOD_PRODUCT' && entry.foodProductId && entry.grams) {
-            deductions.set(entry.foodProductId, (deductions.get(entry.foodProductId) ?? 0) + entry.grams);
-          } else if (entry.entryType === 'MEAL' && entry.mealId) {
-            const meal = mealMap.get(entry.mealId);
-            if (meal) {
-              const servings = meal.servings || 1;
-              const portions = entry.portions ?? 1;
-              for (const ing of meal.ingredients) {
-                const g = (ing.grams * portions) / servings;
-                deductions.set(ing.foodProductId, (deductions.get(ing.foodProductId) ?? 0) + g);
-              }
-            }
-          }
-        }
-      }
-
-      const fridge: Array<{ foodProductId: number; name: string; availableGrams: number }> =
-        JSON.parse(localStorage.getItem(FRIDGE_KEY) ?? '[]');
-      for (const [fpId, gramsToDeduct] of deductions) {
-        const item = fridge.find(f => f.foodProductId === fpId);
-        if (item) item.availableGrams = Math.max(0, item.availableGrams - gramsToDeduct);
-      }
-      localStorage.setItem(FRIDGE_KEY, JSON.stringify(fridge));
-
-      deductionState[activePlan.id] = Math.max(...daysToDeduct.map(d => d.dayNumber));
-      localStorage.setItem(DEDUCTIONS_KEY, JSON.stringify(deductionState));
-    };
-
-    if (mealIds.size > 0) {
-      this.mealsApi.readMeals().subscribe({
-        next: meals => applyDeductions(new Map(meals.map(m => [m.id, m]))),
-        error: () => applyDeductions(new Map()),
-      });
-    } else {
-      applyDeductions(new Map());
-    }
-  }
 }
