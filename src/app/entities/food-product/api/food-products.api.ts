@@ -36,4 +36,8 @@ export class FoodProductsApi {
   deleteFoodProduct(foodProductId: number) {
     return this.http.delete<void>(`${this.baseUrl}/${foodProductId}`);
   }
+
+  setFridgeStatus(foodProductId: number, inFridge: boolean, fridgeGrams?: number | null) {
+    return this.http.patch<FoodProduct>(`${this.baseUrl}/${foodProductId}/fridge`, { inFridge, fridgeGrams });
+  }
 }

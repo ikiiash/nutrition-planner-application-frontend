@@ -1,0 +1,667 @@
+<div class="page-fill">
+
+  <div class="page-header" style="flex-shrink: 0">
+    <div>
+      <h1 class="page-title">Food</h1>
+      <div class="page-subtitle">Your library of products and prepared meals.</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px">
+      <span style="font-size: 12px; color: var(--text-3)">
+        {{ activeTab() === 'products' ? 'Products' : 'Meals' }}
+        <span class="chip brand" style="margin-left: 6px">
+          {{ activeTab() === 'products' ? products().length : meals().length }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Segmented tab control -->
+  <div style="margin-bottom: 20px; flex-shrink: 0">
+    <div class="segmented" style="display: inline-flex; position: relative">
+      <div class="seg-pill"
+           [style.left]="activeTab() === 'products' ? '6px' : 'calc(50% + 2px)'"
+           [style.width]="'calc(50% - 8px)'"></div>
+      <button class="seg-item" [class.active]="activeTab() === 'products'" (click)="setTab('products')">Products</button>
+      <button class="seg-item" [class.active]="activeTab() === 'meals'" (click)="setTab('meals')">Meals</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ PRODUCTS TAB ═══════════════════════ -->
+  @if (activeTab() === 'products') {
+    @if (productError()) {
+      <div style="flex-shrink: 0; background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--r-md);
+                  padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--bad)">
+        {{ productError() }}
+      </div>
+    }
+
+    <div class="food-grid grid-fill" style="display: grid; grid-template-columns: 5fr 4fr; gap: 24px">
+
+      <!-- Left: catalog card -->
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; overflow: hidden">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-shrink: 0">
+          <h2 class="card-title">Catalog</h2>
+          <button class="btn btn-accent btn-sm" type="button" (click)="startCreateProductMode()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Add product
+          </button>
+        </div>
+
+        <!-- search + sort -->
+        <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-shrink: 0">
+          <div style="position: relative; flex: 1">
+            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+              </svg>
+            </span>
+            <input #searchInput type="text" placeholder="Search by product name…"
+                   [value]="searchTerm()"
+                   (input)="updateSearchTerm(searchInput.value); loadProducts()"
+                   style="width: 100%; padding: 10px 14px 10px 38px; background: var(--bg-subtle);
+                          border: 1px solid transparent; border-radius: var(--r-md); font-size: 14px; outline: 0;
+                          transition: all 150ms; color: var(--text)"
+                   (focus)="searchInput.style.background='var(--bg-elevated)'; searchInput.style.borderColor='var(--brand)'"
+                   (blur)="searchInput.style.background='var(--bg-subtle)'; searchInput.style.borderColor='transparent'" />
+          </div>
+          <button class="btn btn-ghost btn-sm" type="button"
+                  (click)="updateSortMode(sortMode() === 'alphabet-asc' ? 'alphabet-desc' : 'alphabet-asc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h13M3 12h9M3 18h5M17 8V4l3 3M20 16v4l-3-3"/>
+            </svg>
+            {{ sortMode() === 'alphabet-asc' ? 'A–Z' : 'Z–A' }}
+          </button>
+        </div>
+
+        <!-- category filter dropdown -->
+        <div style="margin-bottom: 14px; flex-shrink: 0">
+          <select #catSelect
+            [value]="categoryFilter()"
+            (change)="updateCategoryFilter(catSelect.value)"
+            style="width: 100%; padding: 10px 14px; background: var(--bg-subtle);
+                   border: 1px solid transparent; border-radius: var(--r-md);
+                   font-size: 14px; color: var(--text); outline: 0; cursor: pointer">
+            @for (opt of categoryOptions(); track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- product list — scrolls inside the card -->
+        <div style="flex: 1; min-height: 0; display: grid; gap: 8px; overflow-y: auto; padding-right: 4px;
+                    position: relative; align-content: start"
+             class="card-scroll">
+          @if (isProductsLoading()) {
+            <div class="np-loading-overlay">
+              <div class="np-loading-card"><div class="np-spinner"></div></div>
+            </div>
+          }
+          @for (p of sortedProducts(); track p.id) {
+            <div (click)="selectProduct(p.id)"
+              style="display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+                     border-radius: var(--r-md); transition: all 150ms; cursor: pointer"
+              [style.background]="selectedProductId() === p.id ? 'var(--brand-tint)' : 'var(--bg-elevated)'"
+              [style.border]="selectedProductId() === p.id ? '1px solid var(--brand-soft)' : '1px solid var(--border)'"
+              [style.border-left]="selectedProductId() === p.id ? '3px solid var(--brand)' : '1px solid var(--border)'"
+              [style.padding-left]="selectedProductId() === p.id ? '12px' : '14px'">
+              <div style="width: 36px; height: 36px; border-radius: 10px; background: var(--bg-subtle);
+                          display: grid; place-items: center; flex-shrink: 0; font-size: 14px;
+                          font-weight: 700; color: var(--text-3)">
+                {{ p.name.charAt(0).toUpperCase() }}
+              </div>
+              <div style="flex: 1; min-width: 0">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px">
+                  <span style="font-weight: 600; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ p.name }}</span>
+                  @if (p.category) { <span class="chip" style="flex-shrink: 0">{{ p.category }}</span> }
+                </div>
+                <div class="mono" style="font-size: 11.5px; color: var(--text-3)">
+                  {{ p.calories | number:'1.0-0' }} kcal · {{ p.protein | number:'1.0-1' }}P · {{ p.fat | number:'1.0-1' }}F · {{ p.carbohydrates | number:'1.0-1' }}C
+                </div>
+              </div>
+              <div class="num" style="font-weight: 600; font-size: 13px; color: var(--accent); flex-shrink: 0">
+                {{ p.price | currency:'EUR':'symbol':'1.2-2' }}
+              </div>
+            </div>
+          }
+          @empty {
+            <div style="text-align: center; padding: 36px 24px; color: var(--text-3)">
+              <svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="color: var(--text-muted); margin-bottom: 10px">
+                <rect x="8" y="14" width="32" height="26" rx="3"/><path d="M8 22h32M16 14V10M32 14V10"/>
+              </svg>
+              <div style="font-size: 14px; color: var(--text-2)">No products match those filters.</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right: product detail / form — scrolls independently -->
+      <div class="card card-scroll" style="padding: 0; overflow-x: hidden; position: relative">
+        @if (isProductDetailsLoading()) {
+          <div class="np-loading-overlay" style="border-radius: var(--r-lg)">
+            <div class="np-loading-card"><div class="np-spinner"></div></div>
+          </div>
+        }
+
+        @if (editorMode() === 'create') {
+          <div style="padding: 24px">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px">
+              <h2 class="card-title">Create food product</h2>
+            </div>
+            <form [formGroup]="productForm" (ngSubmit)="saveFoodProduct()">
+              <div style="display: flex; gap: 8px; align-items: flex-end; margin-bottom: 12px">
+                <div class="field" style="flex: 1; margin-bottom: 0" [class.has-value]="productForm.controls.name.value">
+                  <input type="text" formControlName="name" placeholder=" " />
+                  <label>Name</label>
+                </div>
+                @if (isPremium()) {
+                  <button type="button" (click)="autofillProduct()" [disabled]="isAutofilling()"
+                    title="AI Auto-fill nutrition values"
+                    style="height: 44px; padding: 0 14px; border-radius: var(--r-md); border: 1px solid var(--brand-soft);
+                           background: var(--brand-tint); color: var(--brand); font-size: 12px; font-weight: 600;
+                           cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;
+                           transition: all 150ms"
+                    [style.opacity]="isAutofilling() ? '0.6' : '1'">
+                    @if (isAutofilling()) {
+                      <span style="font-size: 11px">Filling…</span>
+                    } @else {
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+                        <path d="M19 14l.8 2.4L22 17l-2.2.6L19 20l-.8-2.4L16 17l2.2-.6L19 14z" opacity=".7"/>
+                      </svg>
+                      <span>AI Fill</span>
+                    }
+                  </button>
+                } @else {
+                  <button type="button" disabled
+                    title="AI Fill is a Premium feature. Upgrade your subscription to use it."
+                    style="height: 44px; padding: 0 14px; border-radius: var(--r-md); border: 1px solid var(--border);
+                           background: var(--bg-subtle); color: var(--text-muted); font-size: 12px; font-weight: 600;
+                           cursor: not-allowed; display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;
+                           opacity: 0.65">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span>AI Fill</span>
+                    <span style="font-size: 9px; font-weight: 700; color: var(--gold-2); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 5px; border-radius: 4px; background: var(--gold-3); border: 1px solid var(--gold-2); color: #5A3F18">PRO</span>
+                  </button>
+                }
+              </div>
+              @if (autofillError()) {
+                <div style="font-size: 12px; color: var(--bad); margin-bottom: 10px; margin-top: -6px">{{ autofillError() }}</div>
+              }
+              <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px">
+                <div class="field" [class.has-value]="productForm.controls.category.value">
+                  <input type="text" formControlName="category" placeholder=" " />
+                  <label>Category</label>
+                </div>
+                <div class="field" [class.has-value]="productForm.controls.grams.value">
+                  <input type="number" min="10" step="10" formControlName="grams" placeholder=" " />
+                  <label>Grams (serving)</label>
+                </div>
+                <div class="field" [class.has-value]="productForm.controls.price.value">
+                  <input type="number" min="0" step="0.01" formControlName="price" placeholder=" " />
+                  <label>Price (€)</label>
+                </div>
+                <div class="field" [class.has-value]="productForm.controls.calories.value">
+                  <input type="number" min="0" formControlName="calories" placeholder=" " />
+                  <label>Calories (kcal)</label>
+                </div>
+                <div class="field" [class.has-value]="productForm.controls.protein.value">
+                  <input type="number" min="0" step="0.1" formControlName="protein" placeholder=" " />
+                  <label>Protein (g)</label>
+                </div>
+                <div class="field" [class.has-value]="productForm.controls.fat.value">
+                  <input type="number" min="0" step="0.1" formControlName="fat" placeholder=" " />
+                  <label>Fat (g)</label>
+                </div>
+              </div>
+              <div class="field" [class.has-value]="productForm.controls.carbohydrates.value">
+                <input type="number" min="0" step="0.1" formControlName="carbohydrates" placeholder=" " />
+                <label>Carbohydrates (g)</label>
+              </div>
+              <div class="collapsible-section">
+                <button type="button"
+                  (click)="productMicroOpen.set(!productMicroOpen())"
+                  style="display: flex; align-items: center; justify-content: space-between; width: 100%;
+                         padding: 4px 0; font-weight: 600; font-size: 14px; color: var(--text); background: none; border: none">
+                  Micronutrients (optional)
+                  <span class="chev-toggle" [class.open]="productMicroOpen()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </button>
+                <div class="collapsible" [class.open]="productMicroOpen()">
+                  <div>
+                    <div class="form-grid-2" style="padding-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px">
+                      @for (pair of [
+                        ['Na (Sodium)', 'sodiumMg', 'mg'],['K (Potassium)', 'potassiumMg', 'mg'],
+                        ['Mg (Magnesium)', 'magnesiumMg', 'mg'],['Fe (Iron)', 'ironMg', 'mg'],
+                        ['Ca (Calcium)', 'calciumMg', 'mg'],['Zn (Zinc)', 'zincMg', 'mg'],
+                        ['Vit A', 'vitaminAMcg', 'mcg'],['Vit C', 'vitaminCMg', 'mg'],
+                        ['Vit D', 'vitaminDMcg', 'mcg'],['Vit E', 'vitaminEMg', 'mg'],
+                        ['Vit K', 'vitaminKMcg', 'mcg'],['B1 (Thiamine)', 'vitaminB1Mg', 'mg'],
+                        ['B2 (Riboflavin)', 'vitaminB2Mg', 'mg'],['B6', 'vitaminB6Mg', 'mg'],
+                        ['B9 (Folate)', 'vitaminB9Mcg', 'mcg'],['B12', 'vitaminB12Mcg', 'mcg']
+                      ]; track pair[1]) {
+                        <div class="field" [class.has-value]="productForm.get(pair[1])?.value">
+                          <input type="number" min="0" [formControlName]="pair[1]" placeholder=" " />
+                          <label>{{ pair[0] }} ({{ pair[2] }})</label>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 10px; margin-top: 18px">
+                <button class="btn btn-primary" type="submit" [disabled]="isProductSubmitting()" style="flex: 1">
+                  {{ isProductSubmitting() ? 'Saving…' : 'Create product' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+        } @else if (selectedProduct()) {
+          <div style="padding: 20px">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px">
+              <div style="display: flex; align-items: center; gap: 12px; min-width: 0">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--brand-tint);
+                            display: grid; place-items: center; font-size: 20px; font-weight: 700;
+                            color: var(--brand); flex-shrink: 0">
+                  {{ selectedProduct()!.name.charAt(0).toUpperCase() }}
+                </div>
+                <div style="min-width: 0">
+                  <h2 class="card-title" style="margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ selectedProduct()!.name }}</h2>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    @if (selectedProduct()?.category) {
+                      <span class="chip brand">{{ selectedProduct()!.category }}</span>
+                    }
+                    <span style="font-size: 12px; color: var(--text-3)">per {{ selectedProduct()!.grams | number:'1.0-0' }} g</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0">
+                <div class="num" style="font-size: 18px; color: var(--accent); font-weight: 600">
+                  {{ selectedProduct()!.price | currency:'EUR':'symbol':'1.2-2' }}
+                </div>
+                <button class="btn-icon danger" type="button" (click)="deleteFoodProduct()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Macro tiles -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px">
+              <div class="metric">
+                <div class="label">Calories</div>
+                <div class="value"><span [npCountUp]="selectedProduct()!.calories" [npCountUpDuration]="500"></span></div>
+                <div class="unit">kcal</div>
+              </div>
+              <div class="metric">
+                <div class="label">Protein</div>
+                <div class="value"><span [npCountUp]="selectedProduct()!.protein" [npCountUpDuration]="500" [npCountUpDecimals]="1"></span></div>
+                <div class="unit">g</div>
+              </div>
+              <div class="metric">
+                <div class="label">Fat</div>
+                <div class="value"><span [npCountUp]="selectedProduct()!.fat" [npCountUpDuration]="500" [npCountUpDecimals]="1"></span></div>
+                <div class="unit">g</div>
+              </div>
+              <div class="metric">
+                <div class="label">Carbs</div>
+                <div class="value"><span [npCountUp]="selectedProduct()!.carbohydrates" [npCountUpDuration]="500" [npCountUpDecimals]="1"></span></div>
+                <div class="unit">g</div>
+              </div>
+            </div>
+
+            <!-- Edit form -->
+            <div style="border-top: 1px solid var(--border); padding-top: 18px">
+              <form [formGroup]="productForm" (ngSubmit)="saveFoodProduct()">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px">
+                  @if (isPremium()) {
+                    <button type="button" (click)="autofillProduct()" [disabled]="isAutofilling()"
+                      title="AI Auto-fill nutrition values based on product name"
+                      style="height: 32px; padding: 0 12px; border-radius: var(--r-md); border: 1px solid var(--brand-soft);
+                             background: var(--brand-tint); color: var(--brand); font-size: 12px; font-weight: 600;
+                             cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+                             transition: all 150ms"
+                      [style.opacity]="isAutofilling() ? '0.6' : '1'">
+                      @if (isAutofilling()) {
+                        <span>Filling…</span>
+                      } @else {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+                          <path d="M19 14l.8 2.4L22 17l-2.2.6L19 20l-.8-2.4L16 17l2.2-.6L19 14z" opacity=".7"/>
+                        </svg>
+                        <span>AI Fill</span>
+                      }
+                    </button>
+                  } @else {
+                    <button type="button" disabled
+                      title="AI Fill is a Premium feature — upgrade your subscription to use it"
+                      style="height: 32px; padding: 0 12px; border-radius: var(--r-md); border: 1px solid var(--border);
+                             background: var(--surface-2); color: var(--text-3); font-size: 12px; font-weight: 600;
+                             cursor: not-allowed; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+                             opacity: 0.7; position: relative">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                           stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                      <span>AI Fill</span>
+                      <span style="font-size: 9px; font-weight: 700; color: var(--gold-2); background: color-mix(in srgb, var(--gold-2) 15%, transparent);
+                                   border: 1px solid color-mix(in srgb, var(--gold-2) 40%, transparent); border-radius: 4px; padding: 1px 5px; line-height: 1.4">PRO</span>
+                    </button>
+                  }
+                </div>
+                @if (autofillError()) {
+                  <div style="font-size: 12px; color: var(--bad); margin-bottom: 8px">{{ autofillError() }}</div>
+                }
+                <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px">
+                  <div class="field" [class.has-value]="productForm.controls.name.value">
+                    <input type="text" formControlName="name" placeholder=" " /><label>Name</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.category.value">
+                    <input type="text" formControlName="category" placeholder=" " /><label>Category</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.calories.value">
+                    <input type="number" min="0" formControlName="calories" placeholder=" " /><label>Calories (kcal)</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.protein.value">
+                    <input type="number" min="0" step="0.1" formControlName="protein" placeholder=" " /><label>Protein (g)</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.fat.value">
+                    <input type="number" min="0" step="0.1" formControlName="fat" placeholder=" " /><label>Fat (g)</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.carbohydrates.value">
+                    <input type="number" min="0" step="0.1" formControlName="carbohydrates" placeholder=" " /><label>Carbs (g)</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.grams.value">
+                    <input type="number" min="10" step="10" formControlName="grams" placeholder=" " /><label>Grams (serving)</label>
+                  </div>
+                  <div class="field" [class.has-value]="productForm.controls.price.value">
+                    <input type="number" min="0" step="0.01" formControlName="price" placeholder=" " /><label>Price (€)</label>
+                  </div>
+                </div>
+                <div class="collapsible-section">
+                  <button type="button"
+                    (click)="productMicroOpen.set(!productMicroOpen())"
+                    style="display: flex; align-items: center; justify-content: space-between; width: 100%;
+                           padding: 4px 0; font-weight: 600; font-size: 14px; color: var(--text); background: none; border: none">
+                    Micronutrients (optional)
+                    <span class="chev-toggle" [class.open]="productMicroOpen()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </span>
+                  </button>
+                  <div class="collapsible" [class.open]="productMicroOpen()">
+                    <div>
+                      <div class="form-grid-2" style="padding-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px">
+                        @for (pair of [
+                          ['Na (Sodium)', 'sodiumMg', 'mg'],['K (Potassium)', 'potassiumMg', 'mg'],
+                          ['Mg (Magnesium)', 'magnesiumMg', 'mg'],['Fe (Iron)', 'ironMg', 'mg'],
+                          ['Ca (Calcium)', 'calciumMg', 'mg'],['Zn (Zinc)', 'zincMg', 'mg'],
+                          ['Vit A', 'vitaminAMcg', 'mcg'],['Vit C', 'vitaminCMg', 'mg'],
+                          ['Vit D', 'vitaminDMcg', 'mcg'],['Vit E', 'vitaminEMg', 'mg'],
+                          ['Vit K', 'vitaminKMcg', 'mcg'],['B1 (Thiamine)', 'vitaminB1Mg', 'mg'],
+                          ['B2 (Riboflavin)', 'vitaminB2Mg', 'mg'],['B6', 'vitaminB6Mg', 'mg'],
+                          ['B9 (Folate)', 'vitaminB9Mcg', 'mcg'],['B12', 'vitaminB12Mcg', 'mcg']
+                        ]; track pair[1]) {
+                          <div class="field" [class.has-value]="productForm.get(pair[1])?.value">
+                            <input type="number" min="0" [formControlName]="pair[1]" placeholder=" " />
+                            <label>{{ pair[0] }} ({{ pair[2] }})</label>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 18px">
+                  <button class="btn btn-primary" type="submit" [disabled]="isProductSubmitting()" style="flex: 1">
+                    {{ isProductSubmitting() ? 'Saving…' : 'Save changes' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        } @else {
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-3)">
+            <div style="text-align: center; padding: 24px">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="color: var(--text-muted); margin-bottom: 14px">
+                <rect x="8" y="14" width="32" height="26" rx="3"/><path d="M8 22h32M16 14V10M32 14V10"/>
+              </svg>
+              <div style="font-size: 14px; color: var(--text-2)">Select a product to see details</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════ MEALS TAB ══════════════════════ -->
+  @if (activeTab() === 'meals') {
+    @if (mealError()) {
+      <div style="flex-shrink: 0; background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--r-md);
+                  padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--bad)">
+        {{ mealError() }}
+      </div>
+    }
+
+    <div class="food-grid grid-fill" style="display: grid; grid-template-columns: 4fr 6fr; gap: 24px">
+
+      <!-- Left: meal list -->
+      <div class="card card-scroll" style="padding: 20px">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px">
+          <h2 class="card-title">Meals</h2>
+          <button class="btn btn-accent btn-sm" type="button" (click)="startCreateMealMode()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            New meal
+          </button>
+        </div>
+        <div style="display: grid; gap: 8px; position: relative">
+          @if (isMealsLoading()) {
+            <div class="np-loading-overlay" style="border-radius: var(--r-lg)">
+              <div class="np-loading-card"><div class="np-spinner"></div></div>
+            </div>
+          }
+          @for (m of meals(); track m.id) {
+            <button type="button"
+              (click)="selectMeal(m.id)"
+              style="display: block; text-align: left; padding: 14px 16px; border-radius: var(--r-md); transition: all 150ms; width: 100%"
+              [style.background]="selectedMealId() === m.id ? 'var(--brand-tint)' : 'var(--bg-elevated)'"
+              [style.border]="selectedMealId() === m.id ? '1px solid var(--brand-soft)' : '1px solid var(--border)'"
+              [style.border-left]="selectedMealId() === m.id ? '3px solid var(--brand)' : '1px solid var(--border)'"
+              [style.padding-left]="selectedMealId() === m.id ? '14px' : '16px'">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px">
+                <span style="font-weight: 600; font-size: 15px">{{ m.name }}</span>
+                <span class="num" style="font-size: 13px; color: var(--accent); font-weight: 600">
+                  {{ m.totalPrice != null ? (m.totalPrice | currency:'EUR':'symbol':'1.2-2') : '—' }}
+                </span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-3)">
+                {{ m.servings }} servings
+                @if (m.caloriesPerServing != null) { · {{ m.caloriesPerServing | number:'1.0-0' }} kcal/srv }
+                · {{ m.ingredients?.length ?? 0 }} ingredients
+              </div>
+            </button>
+          }
+          @empty {
+            <div style="text-align: center; padding: 36px 24px; color: var(--text-3)">
+              <div style="font-size: 14px; color: var(--text-2)">No meals yet</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right: meal detail / create form -->
+      <div class="card card-scroll" style="padding: 0; position: relative">
+        @if (isMealDetailsLoading()) {
+          <div class="np-loading-overlay" style="border-radius: var(--r-lg)">
+            <div class="np-loading-card"><div class="np-spinner"></div></div>
+          </div>
+        }
+
+        @if (mealEditorMode() === 'create' || selectedMeal()) {
+          <div style="padding: 24px; border-bottom: 1px solid var(--border)">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px">
+              <h2 class="card-title">{{ mealEditorMode() === 'create' ? 'New meal' : 'Meal details' }}</h2>
+              @if (mealEditorMode() === 'edit' && selectedMeal()) {
+                <div style="display: flex; gap: 6px">
+                  <button class="btn-icon danger" type="button" (click)="deleteMeal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+            <form [formGroup]="mealForm">
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px">
+                <div class="field" [class.has-value]="mealForm.controls.name.value">
+                  <input type="text" formControlName="name" placeholder=" " /><label>Meal name</label>
+                </div>
+                <div class="field" [class.has-value]="mealForm.controls.servings.value">
+                  <input type="number" min="1" formControlName="servings" placeholder=" " /><label>Servings</label>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div style="padding: 18px 24px; background: var(--bg-subtle)">
+            <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text-2)">Add ingredient</div>
+            <form [formGroup]="ingredientForm" (ngSubmit)="addIngredient()">
+              <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: end">
+                <div class="field" style="margin-bottom: 0" [class.has-value]="ingredientForm.controls.foodProductId.value">
+                  <select formControlName="foodProductId">
+                    <option value=""> </option>
+                    @for (p of products(); track p.id) {
+                      <option [value]="p.id">{{ p.name }}</option>
+                    }
+                  </select>
+                  <label>Product</label>
+                </div>
+                <div class="field" style="margin-bottom: 0" [class.has-value]="ingredientForm.controls.grams.value">
+                  <input type="number" min="10" step="10" formControlName="grams" placeholder=" " /><label>Grams</label>
+                </div>
+                <button class="btn btn-primary" type="submit" style="height: 50px; padding: 0 16px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  Add
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div style="padding: 24px">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-3); text-transform: uppercase;
+                        letter-spacing: .1em; margin-bottom: 12px">Ingredients</div>
+
+            @if (ingredientRows().length > 0) {
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+                          gap: 8px; font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .08em;
+                          text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border)">
+                <div>Product</div><div style="text-align:right">g</div><div style="text-align:right">kcal</div>
+                <div style="text-align:right">P</div><div style="text-align:right">F</div><div style="text-align:right">C</div>
+                <div style="text-align:right">Price</div><div></div>
+              </div>
+
+              @for (row of ingredientRows(); track $index) {
+                <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+                            gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px">
+                  <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500">{{ row.name }}</div>
+                  <div class="num" style="text-align:right">{{ row.grams }}</div>
+                  <div class="num" style="text-align:right">{{ row.calories | number:'1.0-0' }}</div>
+                  <div class="num" style="text-align:right">{{ row.protein | number:'1.0-1' }}</div>
+                  <div class="num" style="text-align:right">{{ row.fat | number:'1.0-1' }}</div>
+                  <div class="num" style="text-align:right">{{ row.carbohydrates | number:'1.0-1' }}</div>
+                  <div class="num" style="text-align:right;color:var(--accent);font-weight:600">{{ row.price | currency:'EUR':'symbol':'1.2-2' }}</div>
+                  <button class="btn-icon" type="button" style="width:24px;height:24px" (click)="removeIngredient($index)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              }
+
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+                          gap: 8px; padding: 12px 16px; background: var(--brand-tint);
+                          border-radius: var(--r-md); font-size: 13px; font-weight: 600; margin-top: 8px">
+                <div>Total</div><div class="num" style="text-align:right">{{ mealTotals().grams | number:'1.0-0' }}</div>
+                <div class="num" style="text-align:right">{{ mealTotals().calories | number:'1.0-0' }}</div>
+                <div class="num" style="text-align:right">{{ mealTotals().protein | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right">{{ mealTotals().fat | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right">{{ mealTotals().carbohydrates | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right;color:var(--accent)">{{ mealTotals().price | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div></div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+                          gap: 8px; padding: 12px 16px; background: var(--accent-tint);
+                          border-radius: var(--r-md); font-size: 13px; font-weight: 600; margin-top: 6px">
+                <div>Per serving</div><div class="num" style="text-align:right">{{ mealPerServing().grams | number:'1.0-0' }}</div>
+                <div class="num" style="text-align:right">{{ mealPerServing().calories | number:'1.0-0' }}</div>
+                <div class="num" style="text-align:right">{{ mealPerServing().protein | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right">{{ mealPerServing().fat | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right">{{ mealPerServing().carbohydrates | number:'1.0-1' }}</div>
+                <div class="num" style="text-align:right;color:var(--accent)">{{ mealPerServing().price | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div></div>
+              </div>
+
+              @if (mealMicroRows().length > 0) {
+                <div class="collapsible-section">
+                  <button type="button" (click)="mealMicroOpen.set(!mealMicroOpen())"
+                    style="display:flex;align-items:center;justify-content:space-between;width:100%;
+                           padding:4px 0;font-weight:600;font-size:14px;color:var(--text);background:none;border:none">
+                    <span>Micronutrient coverage <span class="chip" style="margin-left:6px">per serving</span></span>
+                    <span class="chev-toggle" [class.open]="mealMicroOpen()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </span>
+                  </button>
+                  <div class="collapsible" [class.open]="mealMicroOpen()">
+                    <div>
+                      <div style="padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                        @for (row of mealMicroRows(); track row.label) {
+                          <div>
+                            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+                              <span style="color:var(--text-2);font-weight:500">{{ row.label }}</span>
+                              <span class="num muted">{{ row.pct }}% of daily</span>
+                            </div>
+                            <div class="progress"><div class="bar" [class.bad]="row.over" [style.width.%]="row.pct"></div></div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div style="text-align:center;padding:24px;color:var(--text-3);font-size:14px;
+                          border:1.5px dashed var(--border);border-radius:var(--r-md)">
+                Add ingredients to build this meal
+              </div>
+            }
+
+            <div style="display:flex;justify-content:space-between;margin-top:20px">
+              <button class="btn btn-primary" type="button" (click)="saveMeal()" [disabled]="isMealSubmitting()">
+                {{ isMealSubmitting() ? 'Saving…' : (mealEditorMode() === 'create' ? 'Create meal' : 'Save changes') }}
+              </button>
+              @if (mealEditorMode() === 'edit') {
+                <button class="btn btn-ghost" type="button" style="color:var(--bad)" (click)="deleteMeal()">Delete meal</button>
+              }
+            </div>
+          </div>
+
+        } @else {
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-3)">
+            <div style="text-align:center;padding:24px">
+              <div style="font-size:14px;color:var(--text-2)">Select a meal to see details</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>
