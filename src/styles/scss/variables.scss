@@ -1,76 +1,79 @@
-// Colors
-$black: #505154;
-$violet: #5e4676;
-$blue: #45719d;
-$blue-dark: #30537a;
-$red: #9d455b;
+// ── Colors ──────────────────────────────────────────────────────────────────
+$brand-green:      #1F4A36;
+$brand-accent:     #C96A3A;
+$brand-green-dark: #163427;
 
-// Variables
-$body-bg: #EDF0f2;
-$body-color: $black;
-$font-size-root: 10px;
-$font-size-base: 1.4rem;
-$font-family-sans-serif: 'IBM Plex Sans', sans-serif;
+// ── Bootstrap variables ──────────────────────────────────────────────────────
+$body-bg:                 #F7F5F0;
+$body-color:              #1A1A1A;
+$font-size-root:          10px;
+$font-size-base:          1.4rem;
+$font-family-sans-serif:  'DM Sans', system-ui, -apple-system, sans-serif;
 $navbar-brand-margin-end: 0;
-$navbarLgWidth: 96px;
-$h2-font-size: 2rem;
-$card-bg: #fff;
-$small-font-size: 1.2rem;
+$navbarLgWidth:           96px;
+$h2-font-size:            2rem;
+$card-bg:                 #fff;
+$small-font-size:         1.2rem;
 
-// Badges
-$badge-padding-y: 0.4rem;
-$badge-padding-x: 1.2rem;
-$badge-font-size: 1.4rem;
-$badge-font-weight: regular;
+// ── Badges ───────────────────────────────────────────────────────────────────
+$badge-padding-y:    0.4rem;
+$badge-padding-x:    1.2rem;
+$badge-font-size:    1.2rem;
+$badge-font-weight:  600;
 
-// Pagination
-$pagination-bg: #fff;
-$pagination-font-size: 1.6rem;
-$pagination-padding-x: 1.5rem;
-$pagination-padding-y: 0.7rem;
-$pagination-color: $black;
-$pagination-border-color: transparent;
-$pagination-hover-border-color: transparent;
-$pagination-disabled-border-color: transparent;
+// ── Pagination ───────────────────────────────────────────────────────────────
+$pagination-bg:                   #fff;
+$pagination-font-size:            1.4rem;
+$pagination-padding-x:            1.5rem;
+$pagination-padding-y:            0.7rem;
+$pagination-color:                #1A1A1A;
+$pagination-border-color:         transparent;
+$pagination-hover-border-color:   transparent;
+$pagination-disabled-border-color:transparent;
 
-// Forms
-$input-padding-y: 1.15rem;
-$input-padding-x: 1.6rem;
-$input-border-color: #7d93ab;
-$input-bg: #edf0f2;
-$input-font-size: 1.6rem;
-$input-font-weight: bold;
-$input-color: $blue;
+// ── Forms ────────────────────────────────────────────────────────────────────
+$input-padding-y:     0.8rem;
+$input-padding-x:     1.0rem;
+$input-border-color:  #E6E1D6;
+$input-bg:            #ffffff;
+$input-font-size:     1.4rem;
+$input-font-weight:   500;
+$input-color:         #1A1A1A;
 
-// Buttons
-$btn-padding-y: 0.7rem;
-$btn-padding-x: 2rem;
-$btn-font-weight: bold;
-$btn-font-size: 1.6rem;
+// ── Buttons ──────────────────────────────────────────────────────────────────
+$btn-padding-y:   0.7rem;
+$btn-padding-x:   1.6rem;
+$btn-font-weight: 600;
+$btn-font-size:   1.4rem;
 
-// Navbar
-$navbar-light-color: $black;
-$navbar-light-active-color: $red;
+// ── Navbar ───────────────────────────────────────────────────────────────────
+$navbar-light-color:        #1A1A1A;
+$navbar-light-active-color: $brand-green;
 
-// Dropdowns
-$dropdown-bg: #fff;
-$dropdown-item-padding-y: 0.4rem;
-$dropdown-item-padding-x: 1.6rem;
+// ── Dropdowns ────────────────────────────────────────────────────────────────
+$dropdown-bg:              #fff;
+$dropdown-item-padding-y:  0.6rem;
+$dropdown-item-padding-x:  1.0rem;
 
-// Modals
-$modal-content-bg: #fff;
-$modal-header-padding: 1.2rem 2.4rem;
+// ── Modals ───────────────────────────────────────────────────────────────────
+$modal-content-bg:    #fff;
+$modal-header-padding:1.2rem 2.4rem;
 $modal-inner-padding: 2.4rem;
 
+// ── Theme colors (Bootstrap) ─────────────────────────────────────────────────
 $theme-colors: (
-  "primary": $blue-dark,
-  "blue": $blue,
-  "violet": $violet,
-  "red": $red,
-  "black": $black,
-  "white": #fff
+  "primary":   $brand-green,
+  "secondary": $brand-accent,
+  "success":   #22A55B,
+  "danger":    #DC4848,
+  "warning":   #E89818,
+  "info":      #2E6FB5,
+  "dark":      $brand-green,
+  "light":     #F7F5F0,
+  "white":     #fff
 ) !default;
 
+// ── Spacer ───────────────────────────────────────────────────────────────────
 $spacer: 4px !default;
 $spacers: (
   0: 0,
@@ -84,7 +87,6 @@ $spacers: (
   8: $spacer * 8
 ) !default;
 
-// Fonts
 $font-sizes: (
   16: 1.6rem,
 ) !default;

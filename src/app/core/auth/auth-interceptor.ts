@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 
-const apiRequestPattern = /(^\/api\/(food-products|user-profile|health)(\/|$))|(^https?:\/\/.+\/api\/(food-products|user-profile|health)(\/|$))/;
+const apiRequestPattern = /(^\/api\/)|(^https?:\/\/.+\/api\/)/;
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (!apiRequestPattern.test(req.url)) {

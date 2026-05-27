@@ -14,8 +14,8 @@ RUN npm ci
 # Copy the entire project to the container
 COPY . .
 
-# Build the Angular app for production
-RUN npm run build
+# Build the Angular app with development environment (Keycloak on localhost:8081)
+RUN npm run build -- --configuration development
 
 # Use a smaller, production-ready image as the final image
 FROM nginx:alpine
