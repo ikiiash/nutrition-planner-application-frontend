@@ -50,6 +50,6 @@ deploy:
     - echo "$KUBECONFIG_BASE64" | base64 -d > ~/.kube/config
   script:
     - kubectl rollout restart deployment/nutrition-planner-fe -n app
-    - kubectl rollout status deployment/nutrition-planner-fe -n app --timeout=300s
+    - kubectl rollout status deployment/nutrition-planner-fe -n app
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
