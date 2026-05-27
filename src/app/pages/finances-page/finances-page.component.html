@@ -1,1 +1,583 @@
-<app-feature-placeholder title="Finances" />
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Finances</h1>
+      <div class="page-subtitle">Shopping cart, fridge inventory, and plan overview.</div>
+    </div>
+  </div>
+
+  <!-- Segmented control -->
+  <div style="margin-bottom: 22px">
+    <div class="segmented">
+      <div class="seg-pill"
+        [style.left]="activeTab() === 'shopping' ? '6px' : activeTab() === 'fridge' ? 'calc((100% - 8px) / 3 + 6px)' : 'calc(2 * (100% - 8px) / 3 + 6px)'"
+        style="width: calc((100% - 8px) / 3 - 4px)"></div>
+      <button class="seg-item" [class.active]="activeTab() === 'shopping'" (click)="setTab('shopping')">Shopping list</button>
+      <button class="seg-item" [class.active]="activeTab() === 'fridge'" (click)="setTab('fridge')">Fridge</button>
+      <button class="seg-item" [class.active]="activeTab() === 'summary'" (click)="setTab('summary')">Summary</button>
+    </div>
+  </div>
+
+  <!-- ── Shopping list tab ──────────────────────────────────────────────── -->
+  @if (activeTab() === 'shopping') {
+    <div style="display: grid; grid-template-columns: 6fr 4fr; gap: 24px" class="food-grid">
+
+      <!-- Left: cart table -->
+      <div class="card" style="padding: 0; overflow: hidden">
+        <!-- Header bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between;
+                    padding: 14px 20px; background: var(--bg-elevated);
+                    border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap">
+          <div style="display: flex; align-items: center; gap: 16px">
+            <h2 class="card-title">Shopping cart</h2>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <span class="chip warn">{{ round(cartTotals().calories) }} kcal</span>
+              <span class="chip info">P {{ round(cartTotals().protein) }}g</span>
+              <span class="chip accent">F {{ round(cartTotals().fat) }}g</span>
+              <span class="chip ok">C {{ round(cartTotals().carbs) }}g</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <span class="num" style="font-size: 18px; font-weight: 700; color: var(--accent); font-family: var(--font-display)">
+              {{ cartTotals().price | number:'1.2-2' }} €
+            </span>
+            <button class="btn btn-ghost btn-sm" (click)="clearCart()" [disabled]="cart().length === 0">Clear cart</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div style="padding: 20px">
+          <!-- Column headers -->
+          <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+                      font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .08em;
+                      text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border)">
+            <div>Product</div>
+            <div style="text-align: center">Grams</div>
+            <div style="text-align: right">kcal</div>
+            <div style="text-align: right">Price</div>
+            <div></div>
+          </div>
+
+          @if (cart().length === 0) {
+            <div style="padding: 48px 0; text-align: center; color: var(--text-3); font-size: 14px; font-style: italic">
+              Your cart is empty
+            </div>
+          }
+
+          @for (item of cart(); track item.id) {
+            <div class="slide-in" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+                                         align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border)">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: var(--bg-subtle); display: grid;
+                             place-items: center; font-size: 13px; color: var(--text-2); font-weight: 700; flex-shrink: 0">
+                  {{ item.foodProductName.charAt(0).toUpperCase() }}
+                </span>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">{{ item.foodProductName }}</div>
+                  <div style="font-size: 11.5px; color: var(--text-3)">{{ round(item.caloriesPer100g) }} kcal /100g</div>
+                </div>
+              </div>
+              <input type="number" min="0.1" step="1"
+                [value]="item.grams"
+                (change)="updateCartGrams(item, +$any($event.target).value)"
+                style="width: 100%; padding: 8px 12px; background: var(--bg-subtle); border: 1px solid transparent;
+                       border-radius: 8px; font-size: 13px; text-align: center; color: var(--text)" />
+              <div class="num" style="text-align: right; font-weight: 600">
+                {{ round(item.caloriesPer100g * item.grams / 100) }}
+              </div>
+              <div class="num" style="text-align: right; font-weight: 600; color: var(--accent)">
+                {{ (item.pricePer100g * item.grams / 100) | number:'1.2-2' }} €
+              </div>
+              <button class="btn-icon danger" (click)="removeFromCart(item)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          }
+
+          @if (cart().length > 0) {
+            <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+                        padding: 14px 0 4px; font-weight: 700; font-size: 14px">
+              <div>Total ({{ cart().length }} items)</div>
+              <div></div>
+              <div class="num" style="text-align: right">{{ round(cartTotals().calories) }}</div>
+              <div class="num" style="text-align: right; color: var(--accent)">{{ cartTotals().price | number:'1.2-2' }} €</div>
+              <div></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right: add to cart -->
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom: 14px">Add to cart</h2>
+
+        <!-- Inner segmented: Product / Meal / Plan -->
+        <div style="margin-bottom: 18px">
+          <div class="segmented">
+            <div class="seg-pill"
+              [style.left]="addTab() === 'product' ? '2px' : addTab() === 'meal' ? 'calc(33.33% + 2px)' : 'calc(66.67% + 2px)'"
+              style="width: calc(33.33% - 4px)"></div>
+            <button class="seg-item" [class.active]="addTab() === 'product'" (click)="setAddTab('product')">Product</button>
+            <button class="seg-item" [class.active]="addTab() === 'meal'" (click)="setAddTab('meal')">Meal</button>
+            <button class="seg-item" [class.active]="addTab() === 'plan'" (click)="setAddTab('plan')">Plan</button>
+          </div>
+        </div>
+
+        @if (addTab() === 'product') {
+          <form [formGroup]="addProductForm" (ngSubmit)="addProductToCart()">
+            <div class="field" [class.has-value]="addProductForm.controls.foodProductId.value">
+              <select formControlName="foodProductId">
+                <option [value]="null"> </option>
+                @for (p of foodProducts(); track p.id) {
+                  <option [value]="p.id">{{ p.name }}</option>
+                }
+              </select>
+              <label>Product</label>
+            </div>
+            <div class="field" [class.has-value]="addProductForm.controls.grams.value">
+              <input type="number" min="10" step="10" formControlName="grams" placeholder=" " />
+              <label>Amount (g)</label>
+            </div>
+            <!-- Fridge toggle -->
+            <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bg-subtle);
+                        border-radius: var(--r-md); margin-bottom: 16px">
+              <button type="button"
+                (click)="addProductForm.controls.considerFridge.setValue(!addProductForm.controls.considerFridge.value)"
+                style="width: 36px; height: 22px; border-radius: 12px; position: relative; transition: all 200ms;
+                       flex-shrink: 0; border: none; padding: 0; cursor: pointer"
+                [style.background]="addProductForm.controls.considerFridge.value ? 'var(--brand)' : 'var(--border-strong)'">
+                <span style="position: absolute; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: white;
+                             box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: left 200ms var(--ease-out)"
+                  [style.left]="addProductForm.controls.considerFridge.value ? '16px' : '2px'"></span>
+              </button>
+              <div>
+                <div style="font-size: 13px; font-weight: 600">Consider fridge</div>
+                <div style="font-size: 11.5px; color: var(--text-3)">Subtract what's already at home</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit" style="width: 100%">+ Add to cart</button>
+          </form>
+        }
+
+        @if (addTab() === 'meal') {
+          <form [formGroup]="addMealForm" (ngSubmit)="addMealToCart()">
+            <div class="field" [class.has-value]="addMealForm.controls.mealId.value">
+              <select formControlName="mealId">
+                <option [value]="null"> </option>
+                @for (m of meals(); track m.id) {
+                  <option [value]="m.id">{{ m.name }}</option>
+                }
+              </select>
+              <label>Meal</label>
+            </div>
+            <div class="field" [class.has-value]="addMealForm.controls.portions.value">
+              <input type="number" min="1" step="1" formControlName="portions" placeholder=" " />
+              <label>Portions</label>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bg-subtle);
+                        border-radius: var(--r-md); margin-bottom: 16px">
+              <button type="button"
+                (click)="addMealForm.controls.considerFridge.setValue(!addMealForm.controls.considerFridge.value)"
+                style="width: 36px; height: 22px; border-radius: 12px; position: relative; transition: all 200ms;
+                       flex-shrink: 0; border: none; padding: 0; cursor: pointer"
+                [style.background]="addMealForm.controls.considerFridge.value ? 'var(--brand)' : 'var(--border-strong)'">
+                <span style="position: absolute; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: white;
+                             box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: left 200ms var(--ease-out)"
+                  [style.left]="addMealForm.controls.considerFridge.value ? '16px' : '2px'"></span>
+              </button>
+              <div>
+                <div style="font-size: 13px; font-weight: 600">Consider fridge</div>
+                <div style="font-size: 11.5px; color: var(--text-3)">Subtract what's already at home</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit" style="width: 100%">+ Add to cart</button>
+          </form>
+        }
+
+        @if (addTab() === 'plan') {
+          <form [formGroup]="addPlanForm" (ngSubmit)="addPlanToCart()">
+            <div class="field" [class.has-value]="addPlanForm.controls.planId.value">
+              <select formControlName="planId">
+                <option [value]="null"> </option>
+                @for (p of plans(); track p.id) {
+                  <option [value]="p.id">{{ p.name }}</option>
+                }
+              </select>
+              <label>Plan</label>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bg-subtle);
+                        border-radius: var(--r-md); margin-bottom: 16px">
+              <button type="button"
+                (click)="addPlanForm.controls.considerFridge.setValue(!addPlanForm.controls.considerFridge.value)"
+                style="width: 36px; height: 22px; border-radius: 12px; position: relative; transition: all 200ms;
+                       flex-shrink: 0; border: none; padding: 0; cursor: pointer"
+                [style.background]="addPlanForm.controls.considerFridge.value ? 'var(--brand)' : 'var(--border-strong)'">
+                <span style="position: absolute; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: white;
+                             box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: left 200ms var(--ease-out)"
+                  [style.left]="addPlanForm.controls.considerFridge.value ? '16px' : '2px'"></span>
+              </button>
+              <div>
+                <div style="font-size: 13px; font-weight: 600">Consider fridge</div>
+                <div style="font-size: 11.5px; color: var(--text-3)">Subtract what's already at home</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit" style="width: 100%">+ Add all meals to cart</button>
+          </form>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Fridge tab ──────────────────────────────────────────────────────── -->
+  @if (activeTab() === 'fridge') {
+    <div style="display: grid; grid-template-columns: 6fr 4fr; gap: 24px" class="food-grid">
+
+      <!-- Left: fridge table (same layout as shopping cart) -->
+      <div class="card" style="padding: 0; overflow: hidden">
+        <!-- Header bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between;
+                    padding: 14px 20px; background: var(--bg-elevated);
+                    border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap">
+          <div style="display: flex; align-items: center; gap: 16px">
+            <h2 class="card-title">My fridge</h2>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <span class="chip warn">{{ round(fridgeNutrition().calories) }} kcal</span>
+              <span class="chip info">P {{ round(fridgeNutrition().protein) }}g</span>
+              <span class="chip accent">F {{ round(fridgeNutrition().fat) }}g</span>
+              <span class="chip ok">C {{ round(fridgeNutrition().carbs) }}g</span>
+            </div>
+          </div>
+          <span style="font-size: 12px; color: var(--text-3)">{{ fridge().length }} item{{ fridge().length === 1 ? '' : 's' }}</span>
+        </div>
+
+        <!-- Table -->
+        <div style="padding: 20px">
+          <!-- Column headers -->
+          <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.7fr 0.3fr; gap: 12px;
+                      font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .08em;
+                      text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border)">
+            <div>Product</div>
+            <div style="text-align: center">Category</div>
+            <div style="text-align: right">g</div>
+            <div style="text-align: right">kcal/100g</div>
+            <div></div>
+          </div>
+
+          @if (fridge().length === 0) {
+            <div style="padding: 48px 0; text-align: center; color: var(--text-3); font-size: 14px; font-style: italic">
+              Fridge is empty — add products from the right panel
+            </div>
+          }
+
+          @for (p of fridge(); track p.id) {
+            <div class="slide-in" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.7fr 0.3fr; gap: 12px;
+                                         align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border)">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: var(--brand-tint); display: grid;
+                             place-items: center; font-size: 13px; color: var(--brand); font-weight: 700; flex-shrink: 0">
+                  {{ p.name.charAt(0).toUpperCase() }}
+                </span>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">{{ p.name }}</div>
+                  <div style="font-size: 11.5px; color: var(--text-3)">{{ round(p.protein) }}P / {{ round(p.fat) }}F / {{ round(p.carbohydrates) }}C</div>
+                </div>
+              </div>
+              <div style="text-align: center; font-size: 12px; color: var(--text-3)">{{ p.category || '—' }}</div>
+              <input type="number" min="1" step="10"
+                [value]="p.fridgeGrams ?? 0"
+                (change)="updateFridgeGrams(p, +$any($event.target).value)"
+                style="width: 100%; padding: 6px 10px; background: var(--bg-subtle); border: 1px solid transparent;
+                       border-radius: 8px; font-size: 13px; text-align: center; color: var(--text)" />
+              <div class="num" style="text-align: right; font-weight: 600">{{ round(p.calories) }}</div>
+              <button class="btn-icon danger" (click)="toggleFridge(p)" title="Remove from fridge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          }
+
+          @if (fridge().length > 0) {
+            <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.7fr 0.3fr; gap: 12px;
+                        padding: 14px 0 4px; font-weight: 700; font-size: 14px">
+              <div>Total ({{ fridge().length }} items)</div>
+              <div></div>
+              <div></div>
+              <div class="num" style="text-align: right">{{ round(fridgeNutrition().calories) }}</div>
+              <div></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right: add to fridge -->
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom: 14px">Add to fridge</h2>
+
+        <form [formGroup]="addFridgeForm" (ngSubmit)="addToFridge()">
+          <div class="field" [class.has-value]="addFridgeForm.controls.foodProductId.value">
+            <select formControlName="foodProductId">
+              <option [value]="null"> </option>
+              @for (p of notInFridgeProducts(); track p.id) {
+                <option [value]="p.id">{{ p.name }}</option>
+              }
+            </select>
+            <label>Product</label>
+          </div>
+          <div class="field" [class.has-value]="addFridgeForm.controls.fridgeGrams.value">
+            <input type="number" min="1" step="10" formControlName="fridgeGrams" placeholder=" " />
+            <label>Amount (g)</label>
+          </div>
+          <button class="btn btn-primary" type="submit" style="width: 100%">+ Add to fridge</button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ── Summary tab ────────────────────────────────────────────────────── -->
+  @if (activeTab() === 'summary') {
+    <div>
+
+      <!-- BigStat tiles -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px" class="stat-grid">
+        <div class="metric tint-accent" style="padding: 22px">
+          <div class="label">Total spent</div>
+          <div class="value" style="font-size: 38px">
+            @if (summaryStats().totalSpent > 0) {
+              <span [npCountUp]="summaryStats().totalSpent" [npCountUpDuration]="800" [npCountUpDecimals]="2"></span>
+            } @else { 0.00 }
+          </div>
+          <div class="unit">€</div>
+        </div>
+        <div class="metric tint-brand" style="padding: 22px">
+          <div class="label">Total calories</div>
+          <div class="value" style="font-size: 38px">
+            @if (summaryStats().totalKcal > 0) {
+              <span [npCountUp]="summaryStats().totalKcal" [npCountUpDuration]="800"></span>
+            } @else { 0 }
+          </div>
+          <div class="unit">kcal</div>
+        </div>
+        <div class="metric" style="padding: 22px">
+          <div class="label">Avg kcal/day</div>
+          <div class="value" style="font-size: 38px">
+            @if (summaryStats().avgKcalDay > 0) {
+              <span [npCountUp]="summaryStats().avgKcalDay" [npCountUpDuration]="800"></span>
+            } @else { 0 }
+          </div>
+          <div class="unit">kcal</div>
+        </div>
+      </div>
+
+      <!-- ── Value analysis ──────────────────────────────────────────────────── -->
+      <div class="card" style="margin-bottom: 24px">
+
+        <!-- Header -->
+        <div style="display: flex; align-items: flex-start; justify-content: space-between;
+                    margin-bottom: 16px; gap: 14px; flex-wrap: wrap">
+          <div>
+            <h2 class="card-title">Value analysis</h2>
+            <div style="font-size: 12px; color: var(--text-3); margin-top: 3px">
+              Best price-to-nutrition ratio —
+              @if (compareSource() === 'products') { per 100 g }
+              @else if (compareSource() === 'meals') { per serving }
+              @else { per day }
+            </div>
+          </div>
+
+          <!-- Metric selector (4 items) -->
+          <div class="segmented" style="display: inline-flex; position: relative">
+            <div class="seg-pill"
+                 [style.left]="compareMetricPillLeft()"
+                 style="width: calc(25% - 4px)"></div>
+            <button class="seg-item" [class.active]="compareMetric() === 'kcal'"    (click)="compareMetric.set('kcal')">kcal/€</button>
+            <button class="seg-item" [class.active]="compareMetric() === 'protein'" (click)="compareMetric.set('protein')">Protein/€</button>
+            <button class="seg-item" [class.active]="compareMetric() === 'fat'"     (click)="compareMetric.set('fat')">Fat/€</button>
+            <button class="seg-item" [class.active]="compareMetric() === 'carbs'"   (click)="compareMetric.set('carbs')">Carbs/€</button>
+          </div>
+        </div>
+
+        <!-- Source sub-tabs -->
+        <div style="margin-bottom: 18px">
+          <div class="segmented" style="display: inline-flex; position: relative">
+            <div class="seg-pill"
+                 [style.left]="compareSourcePillLeft()"
+                 style="width: calc(33.33% - 4px)"></div>
+            <button class="seg-item" [class.active]="compareSource() === 'products'" (click)="compareSource.set('products')">Products</button>
+            <button class="seg-item" [class.active]="compareSource() === 'meals'"    (click)="compareSource.set('meals')">Meals</button>
+            <button class="seg-item" [class.active]="compareSource() === 'plans'"    (click)="compareSource.set('plans')">Plans</button>
+          </div>
+        </div>
+
+        <!-- Ranked list -->
+        @if (rankedItems().length === 0) {
+          <div style="padding: 40px; text-align: center; color: var(--text-3); font-size: 14px; font-style: italic">
+            No data — add {{ compareSource() }} with prices to compare.
+          </div>
+        } @else {
+          <div style="display: grid; gap: 6px">
+            @for (item of rankedItems(); track item.name) {
+              <div style="display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: center;
+                          padding: 11px 14px; border-radius: var(--r-md); background: var(--bg-subtle)">
+
+                <!-- Rank badge -->
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+                            font-size: 12px; font-weight: 800; flex-shrink: 0"
+                     [style.background]="item.rank === 1 ? 'var(--brand-tint)' : item.rank === 2 ? 'var(--bg-elevated)' : item.rank === 3 ? 'var(--accent-tint)' : 'var(--bg-elevated)'"
+                     [style.color]="item.rank === 1 ? 'var(--brand)' : item.rank === 2 ? 'var(--text-2)' : item.rank === 3 ? 'var(--accent)' : 'var(--text-muted)'">
+                  {{ item.rank }}
+                </div>
+
+                <!-- Content -->
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px">
+                    <span style="font-weight: 600; font-size: 14px; color: var(--text);
+                                 overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ item.name }}</span>
+                    @if (item.tag) {
+                      <span class="chip" style="flex-shrink: 0; font-size: 10px; padding: 1px 7px">{{ item.tag }}</span>
+                    }
+                    <span class="num" style="margin-left: auto; font-size: 11.5px; color: var(--text-3); flex-shrink: 0">
+                      {{ item.price | number:'1.2-2' }} €
+                    </span>
+                  </div>
+
+                  <!-- Efficiency bar -->
+                  <div style="height: 5px; border-radius: var(--r-pill); background: var(--border); overflow: hidden; margin-bottom: 5px">
+                    <div [style.width.%]="item.barPct"
+                         [style.background]="item.rank === 1 ? 'var(--brand)' : item.rank <= 3 ? 'var(--accent)' : 'var(--border-strong)'"
+                         style="height: 100%; border-radius: var(--r-pill); transition: width 500ms var(--ease-out)"></div>
+                  </div>
+
+                  <!-- Macros + value label -->
+                  <div style="display: flex; justify-content: space-between; font-size: 11px">
+                    <span style="color: var(--text-3)">
+                      {{ item.kcal | number:'1.0-0' }} kcal ·
+                      P {{ item.protein | number:'1.0-1' }} ·
+                      F {{ item.fat | number:'1.0-1' }} ·
+                      C {{ item.carbs | number:'1.0-1' }}
+                    </span>
+                    <span class="num" style="font-weight: 700; flex-shrink: 0"
+                          [style.color]="item.rank === 1 ? 'var(--brand)' : item.rank <= 3 ? 'var(--accent)' : 'var(--text-2)'">
+                      {{ item.valuePerEuro | number:'1.0-1' }} {{ compareMetric() === 'kcal' ? 'kcal' : 'g' }}/€
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ── Micronutrient leaders ────────────────────────────────────────────── -->
+      @if (microLeaders().length > 0) {
+        <div class="card" style="margin-bottom: 24px">
+          <div style="margin-bottom: 18px">
+            <h2 class="card-title">Micronutrient leaders</h2>
+            <div style="font-size: 12px; color: var(--text-3); margin-top: 3px">
+              Best food product per € for each micronutrient
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+            @for (leader of microLeaders(); track leader.label) {
+              <div style="padding: 14px 16px; background: var(--bg-subtle); border-radius: var(--r-md);
+                          border-left: 3px solid var(--brand-soft)">
+                <div style="font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+                            color: var(--text-3); margin-bottom: 8px">{{ leader.label }}</div>
+                <div style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+                  {{ leader.best.name }}
+                </div>
+                <div class="num" style="font-size: 13px; font-weight: 700; color: var(--brand)">
+                  {{ leader.best.per100g | number:'1.0-1' }} {{ leader.unit }}/100g
+                </div>
+                <div style="font-size: 11px; color: var(--text-3); margin-top: 1px">
+                  {{ leader.best.perEuro | number:'1.0-1' }} {{ leader.unit }}/€
+                </div>
+                @if (leader.count > 1) {
+                  <div style="font-size: 10px; color: var(--text-muted); margin-top: 6px">
+                    among {{ leader.count }} products
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ── Plans overview ──────────────────────────────────────────────────── -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px">
+          <h2 class="card-title">Plans overview</h2>
+          <span class="chip brand">{{ plans().length }} plans</span>
+        </div>
+
+        @if (plans().length === 0) {
+          <div style="padding: 48px 0; text-align: center; color: var(--text-3); font-size: 14px; font-style: italic">
+            No meal plans yet
+          </div>
+        }
+
+        <div style="display: grid; gap: 18px">
+          @for (s of planSummaries(); track s.plan.id) {
+            <div style="padding: 18px; background: var(--bg-subtle); border-radius: var(--r-lg)">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px">
+                <div>
+                  <div style="font-size: 15px; font-weight: 600">{{ s.plan.name }}</div>
+                  <div style="font-size: 12px; color: var(--text-3)">
+                    {{ s.plan.startDate | date:'d MMM y' }} · {{ s.plan.numberOfDays }} days
+                  </div>
+                </div>
+                <div style="text-align: right">
+                  <div class="num" style="font-size: 18px; font-weight: 700; color: var(--accent)">
+                    {{ s.plan.totalPrice | number:'1.2-2' }} €
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-3)">{{ s.pricePerDay | number:'1.2-2' }} €/day</div>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 12px">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3);
+                            margin-bottom: 4px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600">
+                  <span>Macro split (g)</span>
+                  <span>
+                    <span style="color: var(--info); font-weight: 700">P {{ round(s.plan.totalProtein) }}</span> ·
+                    <span style="color: var(--fat); font-weight: 700">F {{ round(s.plan.totalFat) }}</span> ·
+                    <span style="color: var(--carbs); font-weight: 700">C {{ round(s.plan.totalCarbohydrates) }}</span>
+                  </span>
+                </div>
+                <div style="height: 12px; display: flex; border-radius: var(--r-pill); overflow: hidden; background: var(--border)">
+                  <div [style.width.%]="s.proteinEPct" style="background: var(--info); transition: width 600ms var(--ease-out)"></div>
+                  <div [style.width.%]="s.fatEPct"     style="background: var(--fat);  transition: width 600ms var(--ease-out)"></div>
+                  <div [style.width.%]="s.carbsEPct"   style="background: var(--carbs);transition: width 600ms var(--ease-out)"></div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3);
+                            margin-bottom: 4px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600">
+                  <span>Calories</span>
+                  <span>
+                    <span class="num" style="color: var(--text); font-weight: 700">{{ round(s.plan.totalCalories) }}</span> total ·
+                    <span class="num">{{ round(s.calPerDay) }}</span>/day
+                  </span>
+                </div>
+                <div style="height: 8px; border-radius: var(--r-pill); overflow: hidden; background: var(--border)">
+                  <div [style.width.%]="s.caloriePct" style="height: 100%; background: var(--warn); transition: width 600ms var(--ease-out)"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>
