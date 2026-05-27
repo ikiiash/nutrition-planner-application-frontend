@@ -1,101 +1,222 @@
 <div class="np-shell">
-  <header class="np-topbar">
-    <nav class="navbar">
-      <div class="container py-3 np-header-grid">
-        <div class="np-header-start">
-          <a class="np-brand" routerLink="/meal-plan">
-            <span>Nutrition Planner</span>
-          </a>
-        </div>
 
-        <div class="np-header-center">
-          <ul class="navbar-nav align-items-center mb-0 flex-row np-nav-list">
-            <li class="nav-item">
-              @if (user()?.roles?.includes(premiumRole)) {
-                <a
-                  class="nav-link np-nav-link"
-                  routerLink="/ai-assistant"
-                  routerLinkActive="active"
-                  [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-                >
-                  AI assistant
-                </a>
-              }
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link np-nav-link"
-                routerLink="/finances"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-              >
-                Finances
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link np-nav-link"
-                routerLink="/meal-plan"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-              >
-                Meal plan
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link np-nav-link"
-                routerLink="/food-products"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-              >
-                Food products
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link np-nav-link"
-                routerLink="/profile"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-              >
-                Profile
-              </a>
-            </li>
-          </ul>
-        </div>
+  <!-- ── Topbar ─────────────────────────────────────────────────────────── -->
+  <header class="np-topbar" [class.scrolled]="scrolled">
+    <div class="np-topbar-inner">
 
-        <div class="np-header-end">
-          <div class="d-flex align-items-center gap-1 np-user-actions">
-            @if (user(); as user) {
-              <div ngbDropdown class="np-user-dropdown" [title]="user.name">
-                <button class="np-user-trigger" type="button" ngbDropdownToggle>
-                  <span class="np-user-avatar">{{ user.name | initials }}</span>
-                  <span class="np-user-meta">
-                    <span class="np-user-name">{{ user.name }}</span>
-                    <span class="np-user-role">{{ user.roles[0] || 'User' }}</span>
-                  </span>
-                </button>
+      <!-- Left: hamburger + brand -->
+      <div class="np-topbar-left">
+        <button class="btn-icon menu-btn" type="button" title="Open menu"
+                (click)="drawerOpen.set(true)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+        </button>
 
-                <div ngbDropdownMenu>
-                  <button type="button" class="dropdown-item" [class.disabled]="true" aria-disabled="true">
-                    {{ user.name }}
-                  </button>
-                  <button type="button" class="dropdown-item" [class.disabled]="true" aria-disabled="true">
-                    {{ user.email || user.username }}
-                  </button>
-                  <button type="button" class="dropdown-item" (click)="logout()">Logout</button>
+        <a class="np-brand" routerLink="/meal-plan">
+          <span class="np-brand-mark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 4c-9 0-14 5-14 12 0 2 1 4 2 4 7 0 12-5 12-12V4z" />
+              <path d="M6 20c2-6 6-10 12-12" />
+            </svg>
+          </span>
+          <span>Nutrition Planner</span>
+        </a>
+      </div>
+
+      <!-- Center: nav links — animated pill -->
+      <nav class="np-nav-links" npNavPill>
+        <div class="np-nav-pill"></div>
+
+        <a class="np-nav-link"
+           routerLink="/ai-assistant"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }">
+          AI assistant
+          @if (user()?.roles?.includes(premiumRole)) {
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"
+                 style="color: var(--gold-2); vertical-align: middle; margin-left: 4px">
+              <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+              <path d="M19 14l.8 2.4L22 17l-2.2.6L19 20l-.8-2.4L16 17l2.2-.6L19 14z" opacity=".7"/>
+            </svg>
+          }
+        </a>
+        <a class="np-nav-link"
+           routerLink="/finances"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }">
+          Finances
+        </a>
+        <a class="np-nav-link"
+           routerLink="/meal-plan"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }">
+          Meal plan
+        </a>
+        <a class="np-nav-link"
+           routerLink="/food"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }">
+          Food
+        </a>
+        <a class="np-nav-link"
+           routerLink="/profile"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }">
+          Profile
+        </a>
+      </nav>
+
+      <!-- Right: premium chip + theme toggle + user dropdown -->
+      <div class="np-header-end">
+
+        @if (user()?.roles?.includes(premiumRole)) {
+          <span class="premium-chip">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+            </svg>
+            Premium
+          </span>
+        }
+
+        <button class="np-theme-toggle btn-icon" type="button"
+                (click)="themeService.toggle()"
+                [title]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+          @if (themeService.theme() === 'dark') {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          }
+        </button>
+
+        @if (user(); as u) {
+          <div ngbDropdown placement="bottom-end" container="body" class="position-relative">
+
+            <button class="np-user-trigger" type="button" ngbDropdownToggle>
+              <span class="np-user-avatar">{{ u.name | initials }}</span>
+              <span class="np-user-meta">
+                <span class="np-user-name">{{ u.name }}</span>
+                <span class="np-user-role">{{ u.roles.includes(premiumRole) ? 'PREMIUM' : 'STANDARD' }}</span>
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                   style="color: var(--text-3); flex-shrink: 0">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+
+            <div ngbDropdownMenu class="mt-1">
+              <!-- User header -->
+              <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px 10px; margin-bottom: 2px">
+                <span class="np-user-avatar" style="width: 40px; height: 40px; font-size: 14px; flex-shrink: 0">{{ u.name | initials }}</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">{{ u.name }}</div>
+                  @if (u.roles.includes(premiumRole)) {
+                    <span class="premium-chip" style="font-size: 9px; padding: 3px 8px; margin-top: 3px; display: inline-flex">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/></svg>
+                      Premium
+                    </span>
+                  } @else {
+                    <span class="chip" style="font-size: 10px; margin-top: 3px">Standard</span>
+                  }
                 </div>
               </div>
-            } @else {
-              <button class="btn btn-outline-dark np-auth-button" type="button">Register</button>
-              <button class="btn btn-dark np-auth-button" type="button" (click)="login()">Login</button>
-            }
+              <div style="font-size: 12px; color: var(--text-3); padding: 0 12px 10px; word-break: break-all">
+                {{ u.email || u.username }}
+              </div>
+              <div class="divider"></div>
+              <button type="button" ngbDropdownItem>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                     style="color: var(--text-3)">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>
+                Account settings
+              </button>
+              <button type="button" ngbDropdownItem>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                     style="color: var(--text-3)">
+                  <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+                </svg>
+                Subscription
+              </button>
+              <div class="divider"></div>
+              <button type="button" ngbDropdownItem style="color: var(--bad)" (click)="logout()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+              </button>
+            </div>
+
           </div>
-        </div>
+        } @else {
+          <button class="btn btn-ghost btn-sm" type="button">Register</button>
+          <button class="btn btn-primary btn-sm" type="button" (click)="login()">Login</button>
+        }
+
       </div>
-    </nav>
+    </div>
+
   </header>
 
-  <router-outlet></router-outlet>
+  <!-- Mobile drawer — outside <header> to avoid backdrop-filter stacking context -->
+  @if (drawerOpen()) {
+    <div class="drawer-backdrop" [class.closing]="drawerClosing()" (click)="closeDrawer()"></div>
+    <aside class="drawer" [class.closing]="drawerClosing()">
+      <a class="np-brand" routerLink="/meal-plan" (click)="closeDrawer()"
+         style="margin-bottom: 18px; padding: 0 6px">
+        <span class="np-brand-mark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 4c-9 0-14 5-14 12 0 2 1 4 2 4 7 0 12-5 12-12V4z" />
+            <path d="M6 20c2-6 6-10 12-12" />
+          </svg>
+        </span>
+        <span>Nutrition Planner</span>
+      </a>
+
+      <a class="drawer-link" routerLink="/ai-assistant" routerLinkActive="active"
+         (click)="closeDrawer()">
+        AI assistant
+        @if (user()?.roles?.includes(premiumRole)) {
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"
+               style="color: var(--gold-2); margin-left: auto">
+            <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+          </svg>
+        }
+      </a>
+      <a class="drawer-link" routerLink="/finances" routerLinkActive="active"
+         (click)="closeDrawer()">
+        Finances
+      </a>
+      <a class="drawer-link" routerLink="/meal-plan" routerLinkActive="active"
+         (click)="closeDrawer()">
+        Meal plan
+      </a>
+      <a class="drawer-link" routerLink="/food" routerLinkActive="active"
+         (click)="closeDrawer()">
+        Food
+      </a>
+      <a class="drawer-link" routerLink="/profile" routerLinkActive="active"
+         (click)="closeDrawer()">
+        Profile
+      </a>
+    </aside>
+  }
+
+  <main class="np-main" #mainEl (scroll)="onMainScroll($event)">
+    <router-outlet></router-outlet>
+  </main>
+
 </div>
