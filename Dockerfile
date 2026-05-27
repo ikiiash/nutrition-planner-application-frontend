@@ -14,8 +14,8 @@ RUN npm ci
 # Copy the entire project to the container
 COPY . .
 
-# Build the Angular app with development environment (Keycloak on localhost:8081)
-RUN npm run build -- --configuration development
+# Build the Angular app with the production/default environment for AKS ingress URLs
+RUN npm run build
 
 # Use a smaller, production-ready image as the final image
 FROM nginx:alpine
