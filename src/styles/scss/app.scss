@@ -1822,6 +1822,14 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   &.active { background: var(--brand); color: var(--text-on-brand); }
 }
 
+/* Activity level grid — 5 columns by default, overridden in media queries */
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════════════════════ */
@@ -1928,7 +1936,7 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
 
   /* Activity level: 2 columns, last item spans full width */
   .activity-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr);
     button:last-child { grid-column: 1 / -1; }
   }
 
@@ -1977,7 +1985,7 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
 
   /* Activity level: single column on very small screens */
   .activity-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
     button:last-child { grid-column: auto; }
   }
 }
