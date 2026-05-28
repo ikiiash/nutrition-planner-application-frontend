@@ -1256,6 +1256,7 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
 .np-panel-shell-sm  { min-height: 200px; }
 .np-panel-shell-md  { min-height: 250px; }
 .np-panel-shell-lg  { min-height: 520px; }
+.np-panel-shell-xl  { min-height: 680px; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    MEAL PLAN COMPONENTS
@@ -1905,6 +1906,26 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
     overflow: visible;
   }
 
+  /* Stacked grid cells: reset height:100% so cards size to their content */
+  .grid-fill > *,
+  .profile-grid > *,
+  .plan-grid > * {
+    height: auto;
+  }
+
+  /* card-scroll inside stacked grid: switch from height:100% to max-height */
+  .grid-fill .card-scroll,
+  .profile-grid .card-scroll,
+  .plan-grid .card-scroll {
+    height: auto;
+    max-height: 70vh;
+  }
+
+  /* Plan center card: overflow:hidden clips content when stacked */
+  .plan-grid .card[style*="overflow: hidden"] {
+    overflow: visible !important;
+  }
+
   /* Card padding tighter on tablet */
   .np-card, .card { padding: 18px; }
 
@@ -1960,6 +1981,10 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   .goal-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Panel min-heights: reduce so stacked panels don't force huge scroll */
+  .np-panel-shell-lg { min-height: 280px; }
+  .np-panel-shell-xl { min-height: 320px; }
 
   /* Activity level: 2 columns, last item spans full width */
   .activity-grid {

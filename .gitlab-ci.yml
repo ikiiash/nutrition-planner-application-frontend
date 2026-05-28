@@ -44,10 +44,10 @@ deploy:
   stage: deploy
   tags:
     - fsa-kiiashchenko
-  image:
-    name: alpine/k8s:1.32.3
-    pull_policy: if-not-present
+  image: mcr.microsoft.com/azure-cli:2.67.0
   before_script:
+    - curl -LO "https://dl.k8s.io/release/v1.32.3/bin/linux/amd64/kubectl"
+    - chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
     - mkdir -p ~/.kube
     - echo "$KUBECONFIG_BASE64" | base64 -d > ~/.kube/config
   script:
