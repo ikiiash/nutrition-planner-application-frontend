@@ -44,7 +44,9 @@ deploy:
   stage: deploy
   tags:
     - fsa-kiiashchenko
-  image: alpine/k8s:1.32.3
+  image:
+    name: alpine/k8s:1.32.3
+    pull_policy: if-not-present
   before_script:
     - mkdir -p ~/.kube
     - echo "$KUBECONFIG_BASE64" | base64 -d > ~/.kube/config
