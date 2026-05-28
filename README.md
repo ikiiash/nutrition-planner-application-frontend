@@ -8,11 +8,11 @@ Current implemented frontend scope:
 
 - Keycloak login with JWT-based access to secured backend endpoints
 - user profile page connected to `/user-profile/me`
-- food products page connected to `/food-products`
-- product search, category filtering, sorting, create, update and delete
-- premium-only `AI assistant` route on the frontend
-
-The pages `Meal plan`, `Finances` and `AI assistant` are currently UI placeholders. The main fully implemented page for the assignment is `Food products`.
+- food products page connected to `/food-products` — search, category filtering, A–Z / Z–A sorting, create, update, delete
+- meals page connected to `/meals` — create meals from food product ingredients, view per-serving nutrition totals, edit and delete meals
+- meal plan page connected to `/meal-plans` — create multi-day plans, activate/deactivate a plan, add meal or food product entries per day and meal type (breakfast / lunch / dinner / snack), daily macro totals vs. profile targets with progress bars, plan summary with average per-day values
+- finances page connected to `/shopping-list` and `/meal-plans` — manual shopping cart (add product / meal / plan), fridge inventory management, value analysis (kcal/€ ranking), micronutrient leaders, plan cost overview
+- premium-only AI assistant page connected to `/ai/chats` and `/ai/autofill` — persistent chat sessions, per-product AI nutrition autofill (PREMIUM_USER / ADMIN only)
 
 ## Architecture
 
@@ -22,6 +22,16 @@ The frontend is organized in the style of the `FSA-angular` template:
 - `src/app/entities` for API clients and domain models
 - `src/app/pages` for route-level screens
 - `src/app/shared` for shared UI building blocks
+
+## Pages
+
+| Route | Page | Auth | Description |
+|---|---|---|---|
+| `/meal-plan` | Meal Plan | USER+ | Multi-day meal planner with daily KBJU dashboard |
+| `/food` | Food | USER+ | Products and meals library |
+| `/finances` | Finances | USER+ | Shopping cart, fridge inventory, spending analysis |
+| `/ai-assistant` | AI Assistant | PREMIUM_USER+ | Persistent chat sessions with AI |
+| `/profile` | Profile | USER+ | Biometrics, activity level, fitness goal, macro targets |
 
 ## Run
 
@@ -57,7 +67,7 @@ Use the Keycloak demo users prepared by the backend bootstrap:
 
 - `planner@nutrition.local / planner123`
 - `user@nutrition.local / user123`
-- `premium@nutrition.local / premium123`
+- `premium@nutrition.local / premium123` — unlocks AI assistant and AI autofill
 - `admin@nutrition.local / admin123`
 
 ## Build
