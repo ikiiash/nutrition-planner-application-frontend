@@ -561,7 +561,8 @@
                         letter-spacing: .1em; margin-bottom: 12px">Ingredients</div>
 
             @if (ingredientRows().length > 0) {
-              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+              <div class="meal-ingredients-table">
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr; min-width: 480px;
                           gap: 8px; font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .08em;
                           text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border)">
                 <div>Product</div><div style="text-align:right">g</div><div style="text-align:right">kcal</div>
@@ -570,7 +571,7 @@
               </div>
 
               @for (row of ingredientRows(); track $index) {
-                <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+                <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr; min-width: 480px;
                             gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px">
                   <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500">{{ row.name }}</div>
                   <div class="num" style="text-align:right">{{ row.grams }}</div>
@@ -585,7 +586,7 @@
                 </div>
               }
 
-              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr; min-width: 480px;
                           gap: 8px; padding: 12px 16px; background: var(--brand-tint);
                           border-radius: var(--r-md); font-size: 13px; font-weight: 600; margin-top: 8px">
                 <div>Total</div><div class="num" style="text-align:right">{{ mealTotals().grams | number:'1.0-0' }}</div>
@@ -597,7 +598,7 @@
                 <div></div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr;
+              <div style="display: grid; grid-template-columns: 2.5fr 0.6fr 0.7fr 0.5fr 0.5fr 0.5fr 0.8fr 0.3fr; min-width: 480px;
                           gap: 8px; padding: 12px 16px; background: var(--accent-tint);
                           border-radius: var(--r-md); font-size: 13px; font-weight: 600; margin-top: 6px">
                 <div>Per serving</div><div class="num" style="text-align:right">{{ mealPerServing().grams | number:'1.0-0' }}</div>
@@ -608,6 +609,7 @@
                 <div class="num" style="text-align:right;color:var(--accent)">{{ mealPerServing().price | currency:'EUR':'symbol':'1.2-2' }}</div>
                 <div></div>
               </div>
+              </div><!-- end meal-ingredients-table -->
 
               @if (mealMicroRows().length > 0) {
                 <div class="collapsible-section">

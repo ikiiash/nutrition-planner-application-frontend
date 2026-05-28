@@ -49,12 +49,12 @@
         <!-- Table -->
         <div style="padding: 20px">
           <!-- Column headers -->
-          <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+          <div class="cart-row" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
                       font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .08em;
                       text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border)">
             <div>Product</div>
             <div style="text-align: center">Grams</div>
-            <div style="text-align: right">kcal</div>
+            <div style="text-align: right" class="cart-col-hide">kcal</div>
             <div style="text-align: right">Price</div>
             <div></div>
           </div>
@@ -66,7 +66,7 @@
           }
 
           @for (item of cart(); track item.id) {
-            <div class="slide-in" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+            <div class="slide-in cart-row" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
                                          align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border)">
               <div style="display: flex; align-items: center; gap: 10px">
                 <span style="width: 32px; height: 32px; border-radius: 8px; background: var(--bg-subtle); display: grid;
@@ -83,7 +83,7 @@
                 (change)="updateCartGrams(item, +$any($event.target).value)"
                 style="width: 100%; padding: 8px 12px; background: var(--bg-subtle); border: 1px solid transparent;
                        border-radius: 8px; font-size: 13px; text-align: center; color: var(--text)" />
-              <div class="num" style="text-align: right; font-weight: 600">
+              <div class="num cart-col-hide" style="text-align: right; font-weight: 600">
                 {{ round(item.caloriesPer100g * item.grams / 100) }}
               </div>
               <div class="num" style="text-align: right; font-weight: 600; color: var(--accent)">
@@ -99,11 +99,11 @@
           }
 
           @if (cart().length > 0) {
-            <div style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
+            <div class="cart-row" style="display: grid; grid-template-columns: 3fr 1fr 0.7fr 0.8fr 0.3fr; gap: 12px;
                         padding: 14px 0 4px; font-weight: 700; font-size: 14px">
               <div>Total ({{ cart().length }} items)</div>
               <div></div>
-              <div class="num" style="text-align: right">{{ round(cartTotals().calories) }}</div>
+              <div class="num cart-col-hide" style="text-align: right">{{ round(cartTotals().calories) }}</div>
               <div class="num" style="text-align: right; color: var(--accent)">{{ cartTotals().price | number:'1.2-2' }} €</div>
               <div></div>
             </div>
@@ -484,7 +484,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+          <div class="micro-leaders-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
             @for (leader of microLeaders(); track leader.label) {
               <div style="padding: 14px 16px; background: var(--bg-subtle); border-radius: var(--r-md);
                           border-left: 3px solid var(--brand-soft)">

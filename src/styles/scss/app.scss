@@ -1873,10 +1873,10 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   .ai-layout > aside { display: none !important; }
   .ai-history-btn { display: none !important; }
 
-  /* Common page grids */
+  /* Common page grids — !important overrides inline style="grid-template-columns:..." */
   .profile-grid,
   .food-grid,
-  .stat-grid { grid-template-columns: 1fr; overflow-x: hidden; }
+  .stat-grid { grid-template-columns: 1fr !important; overflow-x: hidden; }
   .plan-grid  { grid-template-columns: 1fr !important; }
 
   /* FSL layout: stack sidebar above main instead of side-by-side */
@@ -1985,6 +1985,19 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   /* Panel min-heights: reduce so stacked panels don't force huge scroll */
   .np-panel-shell-lg { min-height: 280px; }
   .np-panel-shell-xl { min-height: 320px; }
+
+  /* Finances/Food: cart table — drop kcal column, tighten to 3 cols */
+  .cart-row { grid-template-columns: 1fr auto auto !important; }
+  .cart-col-hide { display: none !important; }
+
+  /* Micro leaders: 2 cols instead of 3 */
+  .micro-leaders-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Meals ingredient table — scrollable horizontally instead of breaking */
+  .meal-ingredients-table { overflow-x: auto; }
+
+  /* Food page: right panel full width when stacked */
+  .food-grid .card-scroll { height: auto; max-height: 70vh; }
 
   /* Activity level: 2 columns, last item spans full width */
   .activity-grid {
