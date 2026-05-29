@@ -51,13 +51,16 @@ export class UserService {
 
   async register() {
     await this.oauthService.loadDiscoveryDocument();
-    const params = new URLSearchParams({
-      client_id: authCodeFlowConfig.clientId!,
-      response_type: 'code',
-      scope: authCodeFlowConfig.scope!,
-      redirect_uri: authCodeFlowConfig.redirectUri!,
-    });
-    window.location.href = `${authCodeFlowConfig.issuer}/protocol/openid-connect/registrations?${params.toString()}`;
+    // Use the library's URL builder so it generates and stores state/nonce/PKCE.
+    // Then swap the auth endpoint for the Keycloak registration endpoint so the
+    // callback is handled identically to a normal login.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const loginUrl: string = await (this.oauthService as any).createLoginUrl('', '', null, false, {});
+    const registrationUrl = loginUrl.replace(
+      '/protocol/openid-connect/auth',
+      '/protocol/openid-connect/registrations',
+    );
+    window.location.href = registrationUrl;
   }
 
   logout() {
