@@ -49,6 +49,17 @@ export class UserService {
     }
   }
 
+  async register() {
+    await this.oauthService.loadDiscoveryDocument();
+    const params = new URLSearchParams({
+      client_id: authCodeFlowConfig.clientId!,
+      response_type: 'code',
+      scope: authCodeFlowConfig.scope!,
+      redirect_uri: authCodeFlowConfig.redirectUri!,
+    });
+    window.location.href = `${authCodeFlowConfig.issuer}/protocol/openid-connect/registrations?${params.toString()}`;
+  }
+
   logout() {
     this.oauthService.logOut();
     this.user.set(undefined);
@@ -77,6 +88,13 @@ export class UserService {
     }
 
     await this.tryLogin();
+
+    // After a fresh OAuth2 callback (login or register), reload the page cleanly.
+    // The token is now in localStorage, so on the next load the interceptor can
+    // attach it synchronously before any component makes an API call.
+    if (hasAuthCallback && this.user()) {
+      window.location.replace(window.location.pathname);
+    }
   }
 
   private bindAuthEvents() {

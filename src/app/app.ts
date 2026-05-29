@@ -50,6 +50,10 @@ export class App {
   }
 
   protected login() {
-    this.userService.login();
+    void this.userService.login();
+  }
+
+  protected register() {
+    void this.userService.register();
   }
 }
