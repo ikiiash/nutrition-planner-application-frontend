@@ -1,6 +1,0 @@
-
-> nutrition-planner-application-frontend@0.0.0 start
-> ng serve --proxy-config=proxy.conf.json
-
-[1m[31mAn unhandled exception occurred: Port 4200 is already in use. Use '--port' to specify a different port.
-See "C:\Users\ivans\AppData\Local\Temp\ng-aQnbGw\angular-errors.log" for further details.[39m[22m

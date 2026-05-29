@@ -1010,7 +1010,8 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
    ══════════════════════════════════════════════════════════════════════════ */
 .segmented {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   padding: 4px;
   background: var(--bg-subtle);
   border-radius: var(--r-pill);
@@ -1042,7 +1043,7 @@ h3, h4 { font-size: var(--t-h3); font-variation-settings: "opsz" 14; font-weight
   cursor: pointer;
   background: transparent;
   border: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
